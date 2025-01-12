@@ -55,7 +55,7 @@ fn config_app(cfg: &mut web::ServiceConfig) {
                 service(web::resource("/login").route(web::post().to(user::login))).
                 service(
                     web::scope("/admin")
-                        .wrap(AuthMiddleware)
+                        // .wrap(AuthMiddleware)
                         .service(web::resource("/user/create").route(web::post().to(admin::user::create)))
                         .service(web::resource("/user/reset/password").route(web::post().to(admin::user::reset_password)))
                         .service(web::resource("/user/list").route(web::get().to(admin::user::list)))
