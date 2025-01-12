@@ -18,13 +18,16 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - /usr/local/mysql:/var/lib/mysql
-      - /user/local/mysqletc:/etc/mysql
+      - mysqldata:/var/lib/mysql
+      - mysqlconf:/etc/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=226688wei.
     command: ["sh","-c","docker-entrypoint.sh mysqld"]
     networks:
       - knowledge
+volumes:
+  mysqldata:
+  mysqlconf:
 networks:
   knowledge:
 
