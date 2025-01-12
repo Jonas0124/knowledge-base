@@ -22,8 +22,7 @@ services:
       - /user/local/mysqletc:/etc/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=226688wei.
-    command:
-      - /bin/sh -c "docker-entrypoint.sh mysqld"
+    command: ["sh","-c","docker-entrypoint.sh mysqld"]
     networks:
       - knowledge
 networks:
