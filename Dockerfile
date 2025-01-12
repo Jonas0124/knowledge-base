@@ -11,4 +11,4 @@ RUN  cargo install diesel_cli --no-default-features --features mysql
 RUN diesel migration run
 
 
-CMD [".knowledge-base"]
+CMD ["./knowledge-base"]
