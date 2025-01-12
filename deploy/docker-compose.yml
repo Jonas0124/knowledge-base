@@ -5,9 +5,12 @@ services:
     image: rust:1.83.0
     restart: unless-stopped
     ports:
-      - "7979:7979"
+      - "80:7979"
     volumes:
       - /usr/local/rust:/usr
+    working_dir: /usr
+    command:
+      - bash -c "cd knowledge-base && apt-get update && apt-get install libmariadb-dev-compat && cargo build --release && ./target/release/knowledge-base"
     networks:
       - knowledge
 
