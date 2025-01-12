@@ -11,8 +11,8 @@ services:
       - "80:7979"
     volumes:
       - /usr/local/rust/knowledge-base:/usr/knowledge-base
-    command:
-      - "diesel migration run"
+#    command:
+#      - "diesel migration run"
     networks:
       - knowledge
     depends_on:
