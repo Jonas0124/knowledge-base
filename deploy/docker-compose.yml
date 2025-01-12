@@ -13,7 +13,7 @@ services:
 
   mysql8:
     container_name: mysql8
-    image: mysql:8.0
+    image: mysql:8.0.32
     restart: unless-stopped
     ports:
       - "3306:3306"
