@@ -13,6 +13,8 @@ services:
       - /usr/local/rust/knowledge-base:/usr/knowledge-base
     networks:
       - knowledge
+    depends_on:
+      - mysql8
 
   mysql8:
     container_name: mysql8
