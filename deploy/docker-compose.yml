@@ -1,24 +1,33 @@
-#services:
-#  elasticsearch:
-#    image: elasticsearch:7.13.4
-#    container_name: elasticsearch
-#    environment:
-#      - TZ=Asia/Shanghai
-#      - discovery.type=single-node
-#      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-#    volumes:
-#      - /Users/getcharzp/docker/elasticsearch/data:/usr/share/elasticsearch/data
-#    ports:
-#      - 9200:9200
-#      - 9300:9300
-#
-#  kibana:
-#    image: kibana:7.13.4
-#    container_name: kibana
-#    ports:
-#      - 5601:5601
-#    environment:
-#      ELASTICSEARCH_URL: http://elasticsearch:9200
-#    depends_on:
-#      - elasticsearch
-#
+version: "4.0"
+services:
+  knowledge-base:
+    container_name: knowledge-base
+    image: rust:1.83.0
+    restart: unless-stopped
+    ports:
+      - "80:8080"
+    volumes:
+      - /usr/local/rust:/usr
+    command:
+      - apt-get install libmariadb-dev-compat -y
+    networks:
+      - knowledge
+
+  mysql8:
+    container_name: mysql8
+    image: mysql:8.0
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    volumes:
+      - /usr/local/mysql:/var/lib/mysql
+      - /user/local/mysqletc:/etc/mysql
+    entrypoint: MYSQL_ROOT_PASSWORD=226688wei.
+    networks:
+      - knowledge
+networks:
+  knowledge:
+
+
+
+
