@@ -22,7 +22,8 @@ services:
     volumes:
       - /usr/local/mysql:/var/lib/mysql
       - /user/local/mysqletc:/etc/mysql
-    entrypoint: MYSQL_ROOT_PASSWORD=226688wei.
+    environment:
+      - MYSQL_ROOT_PASSWORD=226688wei.
     networks:
       - knowledge
 networks:
