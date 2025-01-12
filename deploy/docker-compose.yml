@@ -7,10 +7,7 @@ services:
     ports:
       - "80:7979"
     volumes:
-      - /usr/local/rust:/usr
-    working_dir: /usr
-    command:
-      - bash -c "cd knowledge-base && apt-get update && apt-get install libmariadb-dev-compat && cargo build --release && ./target/release/knowledge-base"
+      - /usr/local/rust/knowledge-base:/usr/knowledge-base
     networks:
       - knowledge
 
