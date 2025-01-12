@@ -71,7 +71,7 @@ pub async fn run_server() ->std::io::Result<()> {
     HttpServer::new(move || {
         App::new().configure(config_app)
     })
-    .bind(("0.0.0.0", 8080))?
+    .bind(("0.0.0.0", 7979))?
     .run()
     .await
 }
