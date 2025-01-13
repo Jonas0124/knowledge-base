@@ -16,7 +16,7 @@ cd knowledge-base
 sed -i "0,/^DATABASE_URL=.*/s|^DATABASE_URL=.*|DATABASE_URL=mysql://root:$2@mysql8:3306/knowledge|" .env
 
 
-sed -i "0,/^MYSQL_ROOT_PASSWORD=.*/s|^MYSQL_ROOT_PASSWORD=.*|MYSQL_ROOT_PASSWORD=$2|" .env
+sed -i "0,/^MYSQL_ROOT_PASSWORD=.*/s|^MYSQL_ROOT_PASSWORD=.*|MYSQL_ROOT_PASSWORD=$2|" mysql.env
 
 # 构建部署（根据传入值来确定部署哪些容器）
 if [[ $1 = "mysql8" ]]; then

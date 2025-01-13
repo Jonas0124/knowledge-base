@@ -30,7 +30,7 @@ services:
 #    environment:
 #      - MYSQL_ROOT_PASSWORD=226688wei.
     env_file:
-      - .env
+      - mysql.env
     networks:
       - knowledge
 volumes:
