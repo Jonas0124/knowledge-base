@@ -18,20 +18,22 @@ pub struct User {
     /// 是否删除
     pub is_delete: String,
 
-    /// 版本号
-    pub reversion: i32,
+    /// 创建时间
+    pub create_time: NaiveDateTime,
 
     /// 创建人
     pub create_by: String,
 
-    /// 创建时间
-    pub create_time: NaiveDateTime,
+
+    /// 更新时间
+    pub update_time: NaiveDateTime,
+
 
     /// 修改人
     pub update_by: String,
 
-    /// 更新时间
-    pub update_time: NaiveDateTime,
+    /// 版本号
+    pub reversion: i32,
 }
 
 pub const USER_BASIC_DAO: &str = "user_basic_dao";

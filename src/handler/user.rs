@@ -6,7 +6,7 @@ use crate::service::user::login_service;
 
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct UserLoginRequest {
-    /// 用户名
+    /// 用户名或油箱
     pub username: String,
     /// 密码
     pub password: String,
@@ -15,11 +15,11 @@ pub struct UserLoginRequest {
 #[derive(Serialize, Deserialize)]
 pub struct UserClaim {
     // 唯一标识
-    pub uuid: String,
+    pub id: String,
     // 用户名
     pub username: String,
     // 邮箱地址
-    pub email: Option<String>,
+    pub email: String,
     // 过期时间
     pub exp: i64,
 }

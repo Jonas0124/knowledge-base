@@ -7,14 +7,14 @@ use diesel::r2d2::{ConnectionManager, PooledConnection};
 use diesel::sql_types::BigInt;
 use serde_json::{from_value, json, Value};
 use uuid::Uuid;
-use crate::dao::init::establish_connection;
+use crate::dao::init::db_connection;
 use crate::dao::user_basic_dao::{USER_BASIC_DAO, User};
 use crate::handler::admin::user::{UserCreateRequest, UserListRequest, UserListReply, UserResetPasswordRequest};
 use crate::schema::user::dsl::*;
 
 pub async fn create_service(req: UserCreateRequest) -> Result<(), Box<dyn Error>> {
     // 1. db client
-    let pool = establish_connection();
+    let pool = db_connection();
     let mut conn: PooledConnection<ConnectionManager<MysqlConnection>> = pool.get()?;
     // 2. username 存在
     let count: i64 = user.filter(username.eq(&req.username).or(email.eq(&req.email)))

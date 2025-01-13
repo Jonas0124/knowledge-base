@@ -6,7 +6,7 @@ use dotenvy::dotenv;
 
 pub type DbPool = Pool<ConnectionManager<MysqlConnection>>;
 
-pub fn establish_connection() -> DbPool {
+pub fn db_connection() -> DbPool {
     dotenv().ok(); // 加载 .env 文件中的环境变量
 
     let database_url = env::var("DATABASE_URL")
