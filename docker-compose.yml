@@ -27,8 +27,10 @@ services:
     volumes:
       - mysqldata:/var/lib/mysql
       - mysqlconf:/etc/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=226688wei.
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=226688wei.
+    env_file:
+      - .env
     networks:
       - knowledge
 volumes:
