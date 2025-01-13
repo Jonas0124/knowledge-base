@@ -21,3 +21,30 @@ diesel::table! {
         reversion -> Integer,
     }
 }
+
+diesel::table! {
+    user_secret (id) {
+        #[max_length = 64]
+        id -> Varchar,
+        #[max_length = 64]
+        user_id -> Varchar,
+        #[max_length = 255]
+        question -> Varchar,
+        #[max_length = 255]
+        answer -> Varchar,
+        #[max_length = 64]
+        is_delete -> Varchar,
+        create_time -> Datetime,
+        #[max_length = 64]
+        create_by -> Varchar,
+        update_time -> Datetime,
+        #[max_length = 64]
+        update_by -> Varchar,
+        reversion -> Integer,
+    }
+}
+
+diesel::allow_tables_to_appear_in_same_query!(
+    user,
+    user_secret,
+);
