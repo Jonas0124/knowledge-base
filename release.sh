@@ -8,6 +8,7 @@ echo "第一个参数是密码：$2"
 #进入工作目录
 cd /usr/local/rust/
 #拉取代码
+rm -rf knowledge-base
 git clone git@github.com:Jonas0124/knowledge-base.git
 cd knowledge-base
 
