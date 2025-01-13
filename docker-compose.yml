@@ -33,9 +33,23 @@ services:
       - mysql.env
     networks:
       - knowledge
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer:latest
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - knowledge
 volumes:
   mysqldata:
   mysqlconf:
+  portainer_data:
 networks:
   knowledge:
 
