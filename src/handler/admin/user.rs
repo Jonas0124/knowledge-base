@@ -39,15 +39,29 @@ pub async fn create(req: web::Json<UserCreateRequest>) -> impl Responder {
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct UserResetPasswordRequest {
     /// 唯一标识
-    pub uuid: String,
+    pub id: String,
+
     /// 密码
     pub password: String,
+
+    /// 密保验证
+    pub user_secret_req: Vec<UserSecretReqDTO>,
+
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct UserSecretReqDTO {
+    /// 问题id
+    pub id: String,
+
+    /// 答案
+    pub answer: String,
 }
 
 #[utoipa::path(
     post,
     context_path = "/api/v1",
-    path = "/admin/user/reset/password",
+    path = "/admin/user/updatePassword",
     request_body = UserResetPasswordRequest,
     responses(
         (status = 200, description = "重置密码")
@@ -55,7 +69,7 @@ pub struct UserResetPasswordRequest {
     tag = "超管模块-用户管理",
     security(("Authorization" = []))
 )]
-pub async fn reset_password(req: web::Json<UserResetPasswordRequest>) -> impl Responder {
+pub async fn update_password(req: web::Json<UserResetPasswordRequest>) -> impl Responder {
     let reply = reset_password_service(req.into_inner()).await;
     match reply {
         Ok(_) => web_success(),

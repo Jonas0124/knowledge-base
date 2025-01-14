@@ -19,7 +19,7 @@ use crate::middleware::auth::AuthMiddleware;
         crate::handler::ping::ping,
         crate::handler::user::login,
         crate::handler::admin::user::create,
-        crate::handler::admin::user::reset_password,
+        crate::handler::admin::user::update_password,
         crate::handler::admin::user::list,
     ),
     components(schemas(
@@ -57,7 +57,7 @@ fn config_app(cfg: &mut web::ServiceConfig) {
                     web::scope("/admin")
                          .wrap(AuthMiddleware)
                         .service(web::resource("/user/create").route(web::post().to(admin::user::create)))
-                        .service(web::resource("/user/reset/password").route(web::post().to(admin::user::reset_password)))
+                        .service(web::resource("/user/updatePassword").route(web::post().to(admin::user::update_password)))
                         .service(web::resource("/user/list").route(web::get().to(admin::user::list)))
                 )
         )
