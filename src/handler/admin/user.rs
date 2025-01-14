@@ -2,6 +2,7 @@ use actix_web::{HttpResponse, Responder, web};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use utoipa::{IntoParams, ToSchema};
+use crate::config::app_res::{web_fail, web_success, web_success_data};
 use crate::dao::user_basic_dao::User;
 use crate::service::admin::user::{create_service, list_service, reset_password_service};
 
@@ -29,8 +30,8 @@ pub struct UserCreateRequest {
 pub async fn create(req: web::Json<UserCreateRequest>) -> impl Responder {
     let reply = create_service(req.into_inner()).await;
     match reply {
-        Ok(_) => HttpResponse::Ok().json(json!({"code": 200, "msg": "创建成功"})),
-        Err(err) => HttpResponse::Ok().json(json!({"code": -1, "msg": err.to_string()}))
+        Ok(_) => web_success(),
+        Err(err) => web_fail(&err.to_string())
     }
 }
 
@@ -57,8 +58,8 @@ pub struct UserResetPasswordRequest {
 pub async fn reset_password(req: web::Json<UserResetPasswordRequest>) -> impl Responder {
     let reply = reset_password_service(req.into_inner()).await;
     match reply {
-        Ok(_) => HttpResponse::Ok().json(json!({"code": 200, "msg": "重置成功"})),
-        Err(err) => HttpResponse::Ok().json(json!({"code": -1, "msg": err.to_string()}))
+        Ok(_) => web_success(),
+        Err(err) => web_fail(&err.to_string())
     }
 }
 
@@ -93,7 +94,7 @@ pub struct UserListReply {
 pub async fn list(req: web::Query<UserListRequest>) -> impl Responder {
     let reply = list_service(req.into_inner()).await;
     match reply {
-        Ok(result) => HttpResponse::Ok().json(json!({"code": 200, "data": result})),
-        Err(err) => HttpResponse::Ok().json(json!({"code": -1, "msg": err.to_string()})),
+        Ok(result) => web_success_data(result),
+        Err(err) => web_fail(&err.to_string())
     }
 }

@@ -1,8 +1,8 @@
-use diesel::prelude::*;
 use diesel::mysql::MysqlConnection;
-use std::env;
-use diesel::r2d2::{ConnectionManager, Pool, PooledConnection};
+use diesel::prelude::*;
+use diesel::r2d2::{ConnectionManager, Pool};
 use dotenvy::dotenv;
+use std::env;
 
 pub type DbPool = Pool<ConnectionManager<MysqlConnection>>;
 

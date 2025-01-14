@@ -7,6 +7,7 @@ use diesel::r2d2::{ConnectionManager, PooledConnection};
 use diesel::sql_types::BigInt;
 use serde_json::{from_value, json, Value};
 use uuid::Uuid;
+use crate::config::app_res::business_err;
 use crate::dao::init::db_connection;
 use crate::dao::user_basic_dao::{USER_BASIC_DAO, User};
 use crate::handler::admin::user::{UserCreateRequest, UserListRequest, UserListReply, UserResetPasswordRequest};
@@ -19,8 +20,11 @@ pub async fn create_service(req: UserCreateRequest) -> Result<(), Box<dyn Error>
     // 2. username 存在
     let count: i64 = user.filter(username.eq(&req.username).or(email.eq(&req.email)))
         .count().get_result(&mut conn)?;
+    // if count > 0 {
+    //     return Err(Box::new(io::Error::new(ErrorKind::AlreadyExists,"用户名或者邮箱地址已存在")))
+    // }
     if count > 0 {
-        return Err(Box::new(io::Error::new(ErrorKind::AlreadyExists,"用户名或者邮箱地址已存在")))
+        return business_err(ErrorKind::AlreadyExists, "用户名或者邮箱地址已存在");
     }
     let user_db = User {
         id: Uuid::new_v4().to_string(),
