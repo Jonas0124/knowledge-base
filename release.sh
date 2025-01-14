@@ -2,8 +2,8 @@
 
 
 #获取值
-echo "第二个参数是启动哪些服务：mysql8,rust,all：$1"
-echo "第一个参数是密码：$2"
+echo "第一个参数是启动哪些服务：mysql8,rust,all：$1"
+echo "第二个参数是密码：$2"
 
 #进入工作目录
 cd /usr/local/rust/
