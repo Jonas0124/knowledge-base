@@ -2,6 +2,7 @@ use actix_web::{HttpResponse, Responder, web};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use utoipa::ToSchema;
+use crate::models::vo::email_vo::EmailVo;
 use crate::service::user::login_service;
 
 #[derive(Serialize, Deserialize, ToSchema)]

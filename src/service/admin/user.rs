@@ -17,7 +17,6 @@ use crate::middleware::user_context::UserContext;
 
 pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Result<(), Box<dyn Error>> {
     // 从 Task Local 中获取用户上下文
-    println!("{:?}", context);
     // 1. db client
     let pool = db_connection();
     let mut conn: PooledConnection<ConnectionManager<MysqlConnection>> = pool.get()?;
@@ -40,8 +39,8 @@ pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Re
         reversion: 0,
         create_time: chrono::Utc::now().naive_utc(),
         update_time: chrono::Utc::now().naive_utc(),
-        create_by: String::from("0"),
-        update_by: String::from("0"),
+        create_by: context.id.to_string(),
+        update_by: context.id.to_string(),
     };
 
     insert_into(user_dsl::user)
@@ -59,8 +58,8 @@ pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Re
             reversion: 0,
             create_time: chrono::Utc::now().naive_utc(),
             update_time: chrono::Utc::now().naive_utc(),
-            create_by: String::from("0"),
-            update_by: String::from("0"),
+            create_by: context.id.to_string(),
+            update_by: context.id.to_string(),
         };
         vec.push(secret);
     }
