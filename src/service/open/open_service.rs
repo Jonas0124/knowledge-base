@@ -12,8 +12,8 @@ use uuid::Uuid;
 
 /// 邮箱推送
 
-const ACCESS_KEY_ID: &str = "LTAI5tCn8sWN1dqXYZcQC4qf";
-const ACCESS_KEY_SECRET: &str = "LNq2M18RIbigZfpj1RlnaEonwknO0w";
+const ACCESS_KEY_ID: &str = "";
+const ACCESS_KEY_SECRET: &str = "";
 
 
 
