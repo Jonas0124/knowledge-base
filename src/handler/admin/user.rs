@@ -1,9 +1,10 @@
-use actix_web::{HttpResponse, Responder, web};
+use actix_web::{HttpResponse, Responder, web, HttpRequest, HttpMessage};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use utoipa::{IntoParams, ToSchema};
 use crate::config::app_res::{web_fail, web_success, web_success_data};
 use crate::dao::user_basic_dao::User;
+use crate::middleware::user_context::UserContext;
 use crate::service::admin::user::{create_service, list_service, reset_password_service};
 
 #[derive(Serialize, Deserialize, ToSchema)]
@@ -41,8 +42,8 @@ pub struct CreateUserSecretReqDTO {
     tag = "超管模块-用户管理",
     security(("Authorization" = []))
 )]
-pub async fn create(req: web::Json<UserCreateRequest>) -> impl Responder {
-    let reply = create_service(req.into_inner()).await;
+pub async fn create(req: web::Json<UserCreateRequest>, r: HttpRequest) -> impl Responder {
+    let reply = create_service(req.into_inner(), r.extensions().get::<UserContext>().unwrap()).await;
     match reply {
         Ok(_) => web_success(),
         Err(err) => web_fail(&err.to_string())

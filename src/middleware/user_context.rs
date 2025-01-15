@@ -4,7 +4,7 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 use actix_web::body::MessageBody;
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
-use actix_web::Error;
+use actix_web::{Error, HttpMessage};
 use jsonwebtoken::{decode, decode_header, encode, DecodingKey, EncodingKey, Header};
 use serde_json::json;
 use tokio::task_local;
@@ -22,9 +22,9 @@ pub struct UserContext {
 }
 
 // 定义 Task Local
-std::thread_local! {
-    pub static USER_CONTEXT: RefCell<Option<UserContext>> = RefCell::new(None);
-}
+// std::thread_local! {
+//     pub static USER_CONTEXT: RefCell<Option<UserContext>> = RefCell::new(None);
+// }
 
 // 自定义中间件
 pub struct UserContextMiddleware;
@@ -68,6 +68,7 @@ where
             username: String::from(""),
             email: "".to_string(),
         };
+
         let token = req.headers().get("Authorization");
         if token.is_some() {
             let token = token.unwrap().to_str().unwrap();
@@ -79,17 +80,11 @@ where
                 user_context.email = claim.email;
             }
         }
-        // 设置到 Task Local 中
-        USER_CONTEXT.with(|ctx| {
-            *ctx.borrow_mut() = Some(user_context);
-        });
+        req.extensions_mut().insert(user_context);
+
         let fut = self.service.call(req);
 
-        Box::pin(async move {
-            let res = fut.await?;
-
-            Ok(res)
-        })
+        Box::pin(fut)
     }
 }
 

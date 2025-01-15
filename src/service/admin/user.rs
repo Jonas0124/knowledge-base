@@ -13,12 +13,11 @@ use diesel::{BoolExpressionMethods, ExpressionMethods, MysqlConnection, QueryDsl
 use std::error::Error;
 use std::io::ErrorKind;
 use uuid::Uuid;
-use crate::middleware::user_context::USER_CONTEXT;
+use crate::middleware::user_context::UserContext;
 
-pub async fn create_service(req: UserCreateRequest) -> Result<(), Box<dyn Error>> {
+pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Result<(), Box<dyn Error>> {
     // 从 Task Local 中获取用户上下文
-    let a = USER_CONTEXT.with(|ctx| ctx.borrow().clone());
-    println!("{:?}", a);
+    println!("{:?}", context);
     // 1. db client
     let pool = db_connection();
     let mut conn: PooledConnection<ConnectionManager<MysqlConnection>> = pool.get()?;
