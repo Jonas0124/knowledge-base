@@ -6,7 +6,7 @@ use utoipa_swagger_ui::SwaggerUi;
 use crate::handler::{admin, user};
 use crate::handler::ping::ping;
 use crate::middleware::auth::AuthMiddleware;
-
+use crate::middleware::user_context::UserContextMiddleware;
 
 #[derive(OpenApi)]
 #[openapi(
@@ -25,7 +25,9 @@ use crate::middleware::auth::AuthMiddleware;
     components(schemas(
         crate::handler::user::UserLoginRequest,
         crate::handler::admin::user::UserCreateRequest,
+        crate::handler::admin::user::CreateUserSecretReqDTO,
         crate::handler::admin::user::UserResetPasswordRequest,
+        crate::handler::admin::user::UserSecretReqDTO,
         crate::handler::admin::user::UserListRequest,
         crate::handler::admin::user::UserListReply,
         // crate::dao::user_basic_dao::UserBasicDao,
@@ -51,8 +53,9 @@ fn config_app(cfg: &mut web::ServiceConfig) {
     cfg
         .service(web::resource("/ping").route(web::get().to(ping)))
         .service(
-            web::scope("/api/v1").
-                service(web::resource("/login").route(web::post().to(user::login))).
+            web::scope("/api/v1")
+                .wrap(UserContextMiddleware)
+                .service(web::resource("/login").route(web::post().to(user::login))).
                 service(
                     web::scope("/admin")
                          .wrap(AuthMiddleware)
