@@ -37,7 +37,6 @@
 
   发版步骤:
   1送到git master,禁止推送.env文件
-2.将env文件和release.sh人工拷贝到
-服务器
+2.将本地代码推送到服务器
 3.执行命令 bash ./release.sh 部署类型 密码
 
