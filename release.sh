@@ -8,8 +8,8 @@ echo "第二个参数是密码：$2"
 #进入工作目录
 cd /usr/local/rust/
 #拉取代码
-rm -rf knowledge-base
-git clone git@github.com:Jonas0124/knowledge-base.git
+#rm -rf knowledge-base
+#git clone git@github.com:Jonas0124/knowledge-base.git
 cd knowledge-base
 
 # 修改环境变量，并且保存（.env）
@@ -25,7 +25,7 @@ if [[ $1 = "mysql8" ]]; then
 elif [[ $1 = "rust" ]]; then
   echo "2开始部署$1！"
   docker compose up -d --build knowledge-base
-elif [[ $1 = "rust" ]]; then
+elif [[ $1 = "reids" ]]; then
   echo "3开始部署$1！"
   docker compose up -d --build redis7
 else
