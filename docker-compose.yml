@@ -17,6 +17,7 @@ services:
       - knowledge
     depends_on:
       - mysql8
+      - redis7
 
   mysql8:
     container_name: mysql8
@@ -27,13 +28,21 @@ services:
     volumes:
       - mysqldata:/var/lib/mysql
       - mysqlconf:/etc/mysql
-#    environment:
-#      - MYSQL_ROOT_PASSWORD=226688wei.
     env_file:
       - mysql.env
     networks:
       - knowledge
-
+  redis7:
+    container_name: redis7
+    image: redis:7.0.5
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=&=${REDIS_PASSWORD}
+    command: ["redis-server","--requirepass","${REDIS_PASSWORD}"]
+    networks:
+      - knowledge
   portainer:
     container_name: portainer
     image: portainer/portainer:latest

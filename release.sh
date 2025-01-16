@@ -25,8 +25,11 @@ if [[ $1 = "mysql8" ]]; then
 elif [[ $1 = "rust" ]]; then
   echo "2开始部署$1！"
   docker compose up -d --build knowledge-base
-else
+elif [[ $1 = "rust" ]]; then
   echo "3开始部署$1！"
+  docker compose up -d --build redis7
+else
+  echo "4开始部署$1！"
   docker compose up -d --build
 fi
 echo "操作完成！"
