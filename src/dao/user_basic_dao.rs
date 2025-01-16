@@ -36,4 +36,4 @@ pub struct User {
     pub reversion: i32,
 }
 
-pub const USER_BASIC_DAO: &str = "user_basic_dao";
+// pub const USER_BASIC_DAO: &str = "user_basic_dao";

@@ -47,25 +47,27 @@ pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Re
         .values(&user_db)
         .execute(&mut conn)?;
 
-    let mut vec = Vec::new();
-    for secret_req in req.user_secret_req {
-        let secret = UserSecret {
-            id: Uuid::new_v4().to_string(),
-            user_id: user_id.clone(),
-            question: secret_req.question,
-            answer: secret_req.answer,
-            is_delete: String::from("0"),
-            reversion: 0,
-            create_time: chrono::Utc::now().naive_utc(),
-            update_time: chrono::Utc::now().naive_utc(),
-            create_by: context.id.to_string(),
-            update_by: context.id.to_string(),
-        };
-        vec.push(secret);
-    }
-    insert_into(user_secret)
-        .values(&vec)
-        .execute(&mut conn)?;
+
+    //暂时不用密保
+    // let mut vec = Vec::new();
+    // for secret_req in req.user_secret_req {
+    //     let secret = UserSecret {
+    //         id: Uuid::new_v4().to_string(),
+    //         user_id: user_id.clone(),
+    //         question: secret_req.question,
+    //         answer: secret_req.answer,
+    //         is_delete: String::from("0"),
+    //         reversion: 0,
+    //         create_time: chrono::Utc::now().naive_utc(),
+    //         update_time: chrono::Utc::now().naive_utc(),
+    //         create_by: context.id.to_string(),
+    //         update_by: context.id.to_string(),
+    //     };
+    //     vec.push(secret);
+    // }
+    // insert_into(user_secret)
+    //     .values(&vec)
+    //     .execute(&mut conn)?;
     Ok(())
 }
 
