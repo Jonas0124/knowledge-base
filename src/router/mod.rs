@@ -18,6 +18,7 @@ use crate::middleware::user_context::UserContextMiddleware;
     paths(
         crate::handler::ping::ping,
         crate::handler::user::login,
+        crate::handler::admin::send_verification_handle::send_verification,
         crate::handler::admin::user::create,
         crate::handler::admin::user::update_password,
         crate::handler::admin::user::list,
@@ -29,6 +30,7 @@ use crate::middleware::user_context::UserContextMiddleware;
         crate::handler::admin::user::UserSecretReqDTO,
         crate::handler::admin::user::UserListRequest,
         crate::handler::admin::user::UserListReply,
+        crate::models::req::send_verification::SendVerificationReq,
     )),
     modifiers(&SecurityAddon)
 )]

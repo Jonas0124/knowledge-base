@@ -1,7 +1,4 @@
 /target
 .idea
-docker-compose.yml
-Dockerfile
 mysql.env
-release.sh
-test.sh
+.env

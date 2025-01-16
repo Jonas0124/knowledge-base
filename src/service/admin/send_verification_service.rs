@@ -1,5 +1,7 @@
 use std::error::Error;
+use r2d2_redis::redis::Commands;
 use rand::Rng;
+use crate::dao::redis_db::get_redis_connection;
 use crate::middleware::user_context::UserContext;
 use crate::models::req::send_verification::SendVerificationReq;
 use crate::models::vo::email_vo::EmailVo;
@@ -13,7 +15,11 @@ pub async fn send_verification_email(req: SendVerificationReq, context: &UserCon
         subject: "创建用户验证码",
         body_type: 1,
         to_address: &req.email,
-        body: &("<h1>创建用户验证码如下,过期时间1小时:</h1>\n<h2>".to_string() + &random_number + "</h2>"),
+        body: &"<a href=\"https://www.baidu.com\">点击这里跳转</a>",
+        // body: &("<h1>创建用户验证码如下,过期时间10分钟:</h1>\n<h2>".to_string() + &random_number + "</h2>"),
     };
-    send_email(&email_vo).await
+    send_email(&email_vo, context).await?;
+    let mut connection = get_redis_connection().await.unwrap();
+    connection.set_ex::<&str, i32, i32>("yanzheng", 789897, 600)?;
+    Ok(())
 }

@@ -1,10 +1,10 @@
-use chrono::NaiveDateTime;
+use chrono::{DateTime, NaiveDateTime, Utc};
 use diesel::{AsChangeset, Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize, ToSchema, Insertable, Queryable, AsChangeset)]
-// #[diesel(table_name = crate::schema::send_msg_log)]
+#[derive(Serialize, Deserialize, ToSchema, Insertable, Queryable)]
+#[diesel(table_name = crate::schema::send_msg_log)]
 pub struct MsgSendLog {
 
     /// 消息id
@@ -20,7 +20,7 @@ pub struct MsgSendLog {
     pub email: String,
 
     /// 推送是否成(0-失败，1成功)
-    pub success: u8,
+    pub success: i32,
 
     /// 验证码
     pub verification_code: String,

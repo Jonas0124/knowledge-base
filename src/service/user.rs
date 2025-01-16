@@ -1,4 +1,3 @@
-use crate::dao::init::db_connection;
 use crate::handler::user::{UserClaim, UserLoginRequest};
 use crate::schema::user::dsl::*;
 use diesel::{BoolExpressionMethods, ExpressionMethods, RunQueryDsl};
@@ -10,6 +9,7 @@ use crate::dao::user_basic_dao::User;
 use crate::define::JWT_SECRET;
 use diesel::prelude::*;
 use crate::config::app_res::{business_err};
+use crate::dao::init::db_connection;
 
 pub async fn login_service(req: UserLoginRequest) -> Result<String, Box<dyn Error>> {
     let mut connection = db_connection().get().unwrap();
