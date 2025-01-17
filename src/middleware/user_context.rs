@@ -1,15 +1,12 @@
-use std::cell::RefCell;
-use std::future::{ready, Future, Ready};
-use std::pin::Pin;
-use std::task::{Context, Poll};
+use crate::define::JWT_SECRET;
+use crate::handler::user::UserClaim;
 use actix_web::body::MessageBody;
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
 use actix_web::{Error, HttpMessage};
-use jsonwebtoken::{decode, decode_header, encode, DecodingKey, EncodingKey, Header};
-use serde_json::json;
-use tokio::task_local;
-use crate::define::JWT_SECRET;
-use crate::handler::user::UserClaim;
+use jsonwebtoken::{decode, DecodingKey};
+use std::future::{ready, Future, Ready};
+use std::pin::Pin;
+use std::task::{Context, Poll};
 
 // 定义用户上下文结构
 #[derive(Debug, Clone)]

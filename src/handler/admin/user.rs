@@ -1,11 +1,10 @@
-use actix_web::{HttpResponse, Responder, web, HttpRequest, HttpMessage};
-use serde::{Deserialize, Serialize};
-use serde_json::json;
-use utoipa::{IntoParams, ToSchema};
 use crate::config::app_res::{web_fail, web_success, web_success_data};
 use crate::dao::user_basic_dao::User;
 use crate::middleware::user_context::UserContext;
 use crate::service::admin::user::{create_service, list_service, reset_password_service};
+use actix_web::{web, HttpMessage, HttpRequest, Responder};
+use serde::{Deserialize, Serialize};
+use utoipa::{IntoParams, ToSchema};
 
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct UserCreateRequest {

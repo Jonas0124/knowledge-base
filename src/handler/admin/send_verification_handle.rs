@@ -21,7 +21,7 @@ pub async fn send_verification(req: web::Json<SendVerificationReq>, r: HttpReque
     let reply = send_verification_email(req.into_inner(), r.extensions().get::<UserContext>().unwrap()).await;
     match reply {
         Ok(()) => web_success(),
-        Err(err) => web_fail("发送失败，请稍后再试"),
+        Err(_) => web_fail("发送失败，请稍后再试"),
     }
 }
 

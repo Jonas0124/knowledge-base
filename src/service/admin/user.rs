@@ -8,7 +8,6 @@ use crate::schema::user::dsl as user_dsl;
 use crate::schema::user_secret::dsl::{user_secret, id};
 use diesel::dsl::insert_into;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
-use diesel::row::NamedRow;
 use diesel::{BoolExpressionMethods, ExpressionMethods, MysqlConnection, QueryDsl, RunQueryDsl};
 use std::error::Error;
 use std::io::ErrorKind;

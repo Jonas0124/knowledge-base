@@ -1,9 +1,8 @@
-use actix_web::{HttpResponse, Responder, web};
+use crate::service::user::login_service;
+use actix_web::{web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use utoipa::ToSchema;
-use crate::models::vo::email_vo::EmailVo;
-use crate::service::user::login_service;
 
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct UserLoginRequest {
