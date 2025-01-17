@@ -16,19 +16,17 @@ pub struct UserCreateRequest {
     /// 邮箱
     pub email: String,
 
-    /// 密宝问题
-    pub user_secret_req: Vec<CreateUserSecretReqDTO>,
 }
 
-#[derive(Serialize, Deserialize, ToSchema)]
-pub struct CreateUserSecretReqDTO {
-
-    /// 问题
-    pub question: String,
-
-    /// 答案
-    pub answer: String,
-}
+// #[derive(Serialize, Deserialize, ToSchema)]
+// pub struct CreateUserSecretReqDTO {
+//
+//     /// 问题
+//     pub question: String,
+//
+//     /// 答案
+//     pub answer: String,
+// }
 
 
 #[utoipa::path(

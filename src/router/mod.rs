@@ -18,6 +18,7 @@ use crate::middleware::user_context::UserContextMiddleware;
     paths(
         crate::handler::ping::ping,
         crate::handler::user::login,
+        crate::handler::admin::send_verification_handle::send_verification,
         crate::handler::admin::user::create,
         crate::handler::admin::user::update_password,
         crate::handler::admin::user::list,
@@ -25,12 +26,11 @@ use crate::middleware::user_context::UserContextMiddleware;
     components(schemas(
         crate::handler::user::UserLoginRequest,
         crate::handler::admin::user::UserCreateRequest,
-        crate::handler::admin::user::CreateUserSecretReqDTO,
         crate::handler::admin::user::UserResetPasswordRequest,
         crate::handler::admin::user::UserSecretReqDTO,
         crate::handler::admin::user::UserListRequest,
         crate::handler::admin::user::UserListReply,
-        // crate::dao::user_basic_dao::UserBasicDao,
+        crate::models::req::send_verification::SendVerificationReq,
     )),
     modifiers(&SecurityAddon)
 )]
@@ -55,8 +55,9 @@ fn config_app(cfg: &mut web::ServiceConfig) {
         .service(
             web::scope("/api/v1")
                 .wrap(UserContextMiddleware)
-                .service(web::resource("/login").route(web::post().to(user::login))).
-                service(
+                .service(web::resource("/login").route(web::post().to(user::login)))
+                .service(web::resource("/sendVerification").route(web::post().to(admin::send_verification_handle::send_verification)))
+                .service(
                     web::scope("/admin")
                         .wrap(AuthMiddleware)
                         .service(web::resource("/user/create").route(web::post().to(admin::user::create)))

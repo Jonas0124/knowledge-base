@@ -8,8 +8,8 @@ echo "第二个参数是密码：$2"
 #进入工作目录
 cd /usr/local/rust/
 #拉取代码
-rm -rf knowledge-base
-git clone git@github.com:Jonas0124/knowledge-base.git
+#rm -rf knowledge-base
+#git clone git@github.com:Jonas0124/knowledge-base.git
 cd knowledge-base
 
 # 修改环境变量，并且保存（.env）
@@ -17,6 +17,12 @@ sed -i "0,/^DATABASE_URL=.*/s|^DATABASE_URL=.*|DATABASE_URL=mysql://root:$2@mysq
 
 
 sed -i "0,/^MYSQL_ROOT_PASSWORD=.*/s|^MYSQL_ROOT_PASSWORD=.*|MYSQL_ROOT_PASSWORD=$2|" mysql.env
+sed -i "0,/^REDIS_PASSWORD=.*/s|^REDIS_PASSWORD=.*|REDIS_PASSWORD=$2|" mysql.env
+sed -i "0,/^REDIS_URL=.*/s|^REDIS_URL=.*|REDIS_URL=redis://:$2@redis7:6379|" mysql.env
+old_string="!!redisup"
+new_string=$2
+
+sed -i "s/$old_string/$new_string/g" docker-compose.yml
 
 # 构建部署（根据传入值来确定部署哪些容器）
 if [[ $1 = "mysql8" ]]; then
@@ -25,8 +31,11 @@ if [[ $1 = "mysql8" ]]; then
 elif [[ $1 = "rust" ]]; then
   echo "2开始部署$1！"
   docker compose up -d --build knowledge-base
-else
+elif [[ $1 = "redis" ]]; then
   echo "3开始部署$1！"
+  docker compose up -d --build redis7
+else
+  echo "4开始部署$1！"
   docker compose up -d --build
 fi
 echo "操作完成！"

@@ -1,4 +1,4 @@
-version: "4.0"
+
 services:
   knowledge-base:
     build:
@@ -8,7 +8,7 @@ services:
     image: rust:1.83.0
     restart: unless-stopped
     ports:
-      - "80:7979"
+      - "80:8080"
     volumes:
       - /usr/local/rust/knowledge-base:/usr/knowledge-base
 #    command:
@@ -17,6 +17,7 @@ services:
       - knowledge
     depends_on:
       - mysql8
+      - redis7
 
   mysql8:
     container_name: mysql8
@@ -27,13 +28,21 @@ services:
     volumes:
       - mysqldata:/var/lib/mysql
       - mysqlconf:/etc/mysql
-#    environment:
-#      - MYSQL_ROOT_PASSWORD=226688wei.
     env_file:
       - mysql.env
     networks:
       - knowledge
-
+  redis7:
+    container_name: redis7
+    image: redis:7.0.5
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    env_file:
+      - mysql.env
+    command: ["redis-server","--requirepass","!!redisup"]
+    networks:
+      - knowledge
   portainer:
     container_name: portainer
     image: portainer/portainer:latest
