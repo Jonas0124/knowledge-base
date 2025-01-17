@@ -19,6 +19,7 @@ use crate::middleware::user_context::UserContextMiddleware;
         crate::handler::ping::ping,
         crate::handler::user::login,
         crate::handler::admin::send_verification_handle::send_verification,
+        crate::handler::admin::send_verification_handle::captcha,
         crate::handler::admin::user::create,
         crate::handler::admin::user::update_password,
         crate::handler::admin::user::list,
@@ -31,6 +32,7 @@ use crate::middleware::user_context::UserContextMiddleware;
         crate::handler::admin::user::UserListRequest,
         crate::handler::admin::user::UserListReply,
         crate::models::req::send_verification::SendVerificationReq,
+        crate::models::res::captcha_res::CaptchaResDTO,
     )),
     modifiers(&SecurityAddon)
 )]
@@ -55,6 +57,7 @@ fn config_app(cfg: &mut web::ServiceConfig) {
         .service(
             web::scope("/api/v1")
                 .wrap(UserContextMiddleware)
+                .service(web::resource("/captcha").route(web::post().to(admin::send_verification_handle::captcha)))
                 .service(web::resource("/login").route(web::post().to(user::login)))
                 .service(web::resource("/sendVerification").route(web::post().to(admin::send_verification_handle::send_verification)))
                 .service(

@@ -100,7 +100,7 @@ pub async fn send_email(email_vo: &EmailVo<'_>, context: &UserContext) -> Result
     }
     println!("{}", success);
     let em = email_vo.to_address.clone();
-    save_send_log(context, 0, em.to_string(), success, url.to_string(), Some(response))?;
+    save_send_log(context, email_vo.msg_type, em.to_string(), success, url.to_string(), Some(response))?;
     Ok(())
 }
 
