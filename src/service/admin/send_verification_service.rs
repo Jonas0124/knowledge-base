@@ -1,5 +1,6 @@
 use std::error::Error;
-use std::io::Cursor;
+use std::io::{Cursor, ErrorKind};
+use actix_web::web::Json;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD;
 use captcha::Captcha;
@@ -8,8 +9,11 @@ use image::{DynamicImage, ImageFormat, RgbaImage};
 use image::imageops::{brighten, contrast};
 use r2d2_redis::redis::Commands;
 use rand::Rng;
+use crate::config::app_res::business_err;
 use crate::dao::redis_db::get_redis_connection;
 use crate::middleware::user_context::UserContext;
+use crate::models::r#enum::redis_enum::RedisEnum;
+use crate::models::req::captcha_req::CaptchaReqDTO;
 use crate::models::req::send_verification::SendVerificationReq;
 use crate::models::res::captcha_res::CaptchaResDTO;
 use crate::models::vo::email_vo::EmailVo;
@@ -31,12 +35,12 @@ pub async fn send_verification_email(req: SendVerificationReq, context: &UserCon
     };
     send_email(&email_vo, context).await?;
     let mut connection = get_redis_connection().await.unwrap();
-    connection.set_ex::<&str, i32, i32>("yanzheng", 789897, 600)?;
+    connection.set_ex::<&str, &str, ()>(&(RedisEnum::CreateUserEmailSend.to_key().to_string() + &req.email), &random_number, 600)?;
     Ok(())
 }
 
 /// 图形验证码
-pub fn captcha() -> Result<CaptchaResDTO, Box<dyn Error>> {
+pub async  fn captcha() -> Result<CaptchaResDTO, Box<dyn Error>> {
     let mut captcha = Captcha::new();
 
     // 添加字符、波浪效果、噪点
@@ -79,7 +83,8 @@ pub fn captcha() -> Result<CaptchaResDTO, Box<dyn Error>> {
         .collect();
 
     // 将验证码存储到redis并返回
-
+    let mut conn = get_redis_connection().await.unwrap();
+    conn.set_ex::<&str, &str, ()>(&(RedisEnum::CAPTCHA.to_key().to_string() + &captcha_id), &captcha_text, 300)?;
     Ok(CaptchaResDTO {
         captcha_id: captcha_id,
         captcha_image: captcha_image_base64
@@ -108,4 +113,17 @@ fn enhance_image(image: RgbaImage) -> RgbaImage {
     contrast(&mut img, 50.0); // 增加对比度
 
     img.to_rgba8()
+}
+
+/// 图形验证码校验
+pub(crate) async fn check_captcha(req: Json<CaptchaReqDTO>) -> Result<(), Box<dyn Error>> {
+    let mut conn = get_redis_connection().await.unwrap();
+    let result = conn.get::<&str, String>(&(RedisEnum::CAPTCHA.to_key().to_string() + req.captcha_id.as_str())).ok();
+    let Some(res) = result else {
+        return business_err::<()>(ErrorKind::NotFound, "校验失败，请重试");
+    };
+    if res != req.captcha_content {
+        return business_err::<()>(ErrorKind::NotFound, "校验失败，请重试");
+    };
+    Ok(())
 }
