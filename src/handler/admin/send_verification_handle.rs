@@ -21,7 +21,7 @@ pub async fn send_verification(req: web::Json<SendVerificationReq>, r: HttpReque
     let reply = send_verification_email(req.into_inner(), r.extensions().get::<UserContext>().unwrap()).await;
     match reply {
         Ok(()) => web_success(),
-        Err(_) => web_fail("发送失败，请稍后再试"),
+        Err(err) => web_fail(&err.to_string()),
     }
 }
 
@@ -44,16 +44,17 @@ pub async fn captcha() -> impl Responder {
 }
 
 #[utoipa::path(
-    get,
+    post,
     context_path = "/api/v1",
     path = "/checkCaptcha",
+    request_body = CaptchaReqDTO,
     responses(
         (status = 200, description = "校验图形验证码验证码成功")
     ),
     tag = "验证码"
 )]
 pub async fn check_captcha(req: web::Json<CaptchaReqDTO>) -> impl Responder {
-    let reply = send_verification_service::check_captcha(req).await;
+    let reply = send_verification_service::check_captcha(req.into_inner()).await;
     match reply {
         Ok(()) => web_success(),
         Err(_) => web_fail("校验失败，请稍后再试"),

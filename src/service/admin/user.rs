@@ -11,20 +11,29 @@ use diesel::r2d2::{ConnectionManager, PooledConnection};
 use diesel::{BoolExpressionMethods, ExpressionMethods, MysqlConnection, QueryDsl, RunQueryDsl};
 use std::error::Error;
 use std::io::ErrorKind;
+use r2d2_redis::redis::Commands;
 use uuid::Uuid;
+use crate::dao::redis_db::get_redis_connection;
 use crate::middleware::user_context::UserContext;
+use crate::models::r#enum::redis_enum::RedisEnum;
 
 pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Result<(), Box<dyn Error>> {
-    // 从 Task Local 中获取用户上下文
+    // 验证码校验
+    let mut conn = get_redis_connection().await?;
+    let option = conn.get::<&str, String>(RedisEnum::CreateUserEmailSend.to_key()).ok();
+    let Some(option) = option else {
+        return business_err(ErrorKind::Other, "验证码错误");
+    };
+    if option != req.verification_content {
+        return business_err(ErrorKind::Other, "验证码错误");
+    }
     // 1. db client
     let pool = db_connection();
     let mut conn: PooledConnection<ConnectionManager<MysqlConnection>> = pool.get()?;
     // 2. username 存在
     let count: i64 = user_dsl::user.filter(user_dsl::username.eq(&req.username).or(user_dsl::email.eq(&req.email)))
         .count().get_result(&mut conn)?;
-    // if count > 0 {
-    //     return Err(Box::new(io::Error::new(ErrorKind::AlreadyExists,"用户名或者邮箱地址已存在")))
-    // }
+
     if count > 0 {
         return business_err(ErrorKind::AlreadyExists, "用户名或者邮箱地址已存在");
     }
@@ -46,27 +55,6 @@ pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Re
         .values(&user_db)
         .execute(&mut conn)?;
 
-
-    //暂时不用密保
-    // let mut vec = Vec::new();
-    // for secret_req in req.user_secret_req {
-    //     let secret = UserSecret {
-    //         id: Uuid::new_v4().to_string(),
-    //         user_id: user_id.clone(),
-    //         question: secret_req.question,
-    //         answer: secret_req.answer,
-    //         is_delete: String::from("0"),
-    //         reversion: 0,
-    //         create_time: chrono::Utc::now().naive_utc(),
-    //         update_time: chrono::Utc::now().naive_utc(),
-    //         create_by: context.id.to_string(),
-    //         update_by: context.id.to_string(),
-    //     };
-    //     vec.push(secret);
-    // }
-    // insert_into(user_secret)
-    //     .values(&vec)
-    //     .execute(&mut conn)?;
     Ok(())
 }
 

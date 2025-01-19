@@ -15,6 +15,9 @@ pub struct UserCreateRequest {
     /// 邮箱
     pub email: String,
 
+    /// 验证码校验
+    pub verification_content: String,
+
 }
 
 // #[derive(Serialize, Deserialize, ToSchema)]

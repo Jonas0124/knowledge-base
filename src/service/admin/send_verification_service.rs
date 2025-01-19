@@ -22,6 +22,12 @@ use crate::service::open::open_service::send_email;
 
 /// 发邮件
 pub async fn send_verification_email(req: SendVerificationReq, context: &UserContext) -> Result<(), Box<dyn Error>> {
+    //验证图形验证码后推送邮件
+    let captcha_req_dto = CaptchaReqDTO {
+        captcha_id: req.captcha_id,
+        captcha_content: req.captcha_content,
+    };
+    check_captcha(captcha_req_dto).await?;
     // 推送验证码
     let mut rng = rand::thread_rng();  // 获取随机数生成器
     let random_number = rng.gen_range(100_000..1_000_000).to_string();  // 生成 6 位数字
@@ -116,13 +122,13 @@ fn enhance_image(image: RgbaImage) -> RgbaImage {
 }
 
 /// 图形验证码校验
-pub(crate) async fn check_captcha(req: Json<CaptchaReqDTO>) -> Result<(), Box<dyn Error>> {
+pub(crate) async fn check_captcha(req: CaptchaReqDTO) -> Result<(), Box<dyn Error>> {
     let mut conn = get_redis_connection().await.unwrap();
     let result = conn.get::<&str, String>(&(RedisEnum::CAPTCHA.to_key().to_string() + req.captcha_id.as_str())).ok();
     let Some(res) = result else {
         return business_err::<()>(ErrorKind::NotFound, "校验失败，请重试");
     };
-    if res != req.captcha_content {
+    if res.to_lowercase() != req.captcha_content.to_lowercase() {
         return business_err::<()>(ErrorKind::NotFound, "校验失败，请重试");
     };
     Ok(())

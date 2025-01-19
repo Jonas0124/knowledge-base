@@ -15,5 +15,5 @@ pub struct SendVerificationReq {
     pub  captcha_id: String,
 
     /// 图形验证码内容
-    pub captcha_image: String,
+    pub captcha_content: String,
 }

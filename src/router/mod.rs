@@ -59,14 +59,14 @@ fn config_app(cfg: &mut web::ServiceConfig) {
         .service(
             web::scope("/api/v1")
                 .wrap(UserContextMiddleware)
-                .service(web::resource("/captcha").route(web::get().to(admin::send_verification_handle::captcha)))
-                .service(web::resource("/checkCaptcha").route(web::post().to(admin::send_verification_handle::check_captcha)))
-                .service(web::resource("/login").route(web::post().to(user::login)))
-                .service(web::resource("/sendVerification").route(web::post().to(admin::send_verification_handle::send_verification)))
+                .service(web::resource("/captcha").route(web::get().to(admin::send_verification_handle::captcha)))//获取图形验证码
+                .service(web::resource("/checkCaptcha").route(web::post().to(admin::send_verification_handle::check_captcha)))//校验图形验证码
+                .service(web::resource("/login").route(web::post().to(user::login)))//登陆
+                .service(web::resource("/sendVerification").route(web::post().to(admin::send_verification_handle::send_verification)))//发送邮箱验证码
+                .service(web::resource("/user/create").route(web::post().to(admin::user::create)))//创建用户
                 .service(
                     web::scope("/admin")
                         .wrap(AuthMiddleware)
-                        .service(web::resource("/user/create").route(web::post().to(admin::user::create)))
                         .service(web::resource("/user/updatePassword").route(web::post().to(admin::user::update_password)))
                         .service(web::resource("/user/list").route(web::get().to(admin::user::list)))
                 )
