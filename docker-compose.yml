@@ -8,7 +8,7 @@ services:
     image: rust:1.83.0
     restart: unless-stopped
     ports:
-      - "80:8080"
+      - "8080:8080"
     volumes:
       - /usr/local/rust/knowledge-base:/usr/knowledge-base
 #    command:
