@@ -20,7 +20,7 @@ use crate::models::r#enum::redis_enum::RedisEnum;
 pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Result<(), Box<dyn Error>> {
     // 验证码校验
     let mut conn = get_redis_connection().await?;
-    let option = conn.get::<&str, String>(RedisEnum::CreateUserEmailSend.to_key()).ok();
+    let option = conn.get::<&str, String>(&(RedisEnum::CreateUserEmailSend.to_key().to_string() + &req.email)).ok();
     let Some(option) = option else {
         return business_err(ErrorKind::Other, "验证码错误");
     };
