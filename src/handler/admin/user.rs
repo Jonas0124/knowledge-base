@@ -34,7 +34,7 @@ pub struct UserCreateRequest {
 #[utoipa::path(
     post,
     context_path = "/api/v1",
-    path = "/admin/user/create",
+    path = "/user/create",
     request_body = UserCreateRequest,
     responses(
         (status = 200, description = "创建成功")
