@@ -142,7 +142,10 @@ pub async fn list(req: web::Query<UserListRequest>) -> impl Responder {
     security(("Authorization" = []))
 )]
 pub async fn check_user(req: web::Query<UserCheckReqDTO>) -> impl Responder {
-    let reply = user::check_user_uk(req.into_inner());
+    let dto = req.into_inner();
+    tracing::info!("校验用户入参:{:#?}", &dto);
+    let reply = user::check_user_uk(dto);
+    tracing::info!("校验用户返回:");
     match reply {
         Ok(result) => web_success_data(result),
         Err(err) => web_fail(&err.to_string())

@@ -55,9 +55,9 @@ pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Re
 }
 
 /// 用户唯一校验
-pub fn check_user(req: &UserCreateRequest, mut conn: &mut PooledConnection<ConnectionManager<MysqlConnection>>) -> Result<(), Box<dyn Error>> {
+pub fn check_user(req: &UserCreateRequest, conn: &mut PooledConnection<ConnectionManager<MysqlConnection>>) -> Result<(), Box<dyn Error>> {
     let count: i64 = user_dsl::user.filter(user_dsl::username.eq(&req.username).or(user_dsl::email.eq(&req.email)))
-        .count().get_result(&mut conn)?;
+        .count().get_result(conn)?;
 
     if count > 0 {
         return business_err(ErrorKind::AlreadyExists, "用户名或者邮箱地址已存在");
@@ -150,7 +150,7 @@ pub async fn list_service(req: UserListRequest) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub(crate) fn check_user_uk(req: UserCheckReqDTO) -> Result<(), Box<dyn Error>> {
+pub fn check_user_uk(req: UserCheckReqDTO) -> Result<(), Box<dyn Error>> {
     let pool = db_connection();
     let mut conn: PooledConnection<ConnectionManager<MysqlConnection>> = pool.get()?;
     let request = UserCreateRequest {

@@ -1,0 +1,28 @@
+appenders:
+  rolling_file:
+    kind: rolling_file   # 指定 appender 类型
+    path: "logs/application.log"
+    policy:
+      kind: compound      # 指定滚动策略类型
+      trigger:
+        kind: time        # 时间触发
+        time_unit: day
+        interval: 1
+      roller:
+        kind: size        # 大小触发
+        limit: 10MB
+        keep: 30
+    encoder:
+      kind: pattern
+      pattern: "{d} {l} {t} - {m}{n}"
+
+root:
+  level: info
+  appenders:
+    - rolling_file
+
+loggers:
+  actix_web::server:
+    level: debug
+    appenders:
+      - rolling_file
