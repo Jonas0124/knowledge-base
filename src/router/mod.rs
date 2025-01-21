@@ -63,6 +63,7 @@ fn config_app(cfg: &mut web::ServiceConfig) {
                 .service(web::resource("/checkCaptcha").route(web::post().to(admin::send_verification_handle::check_captcha)))//校验图形验证码
                 .service(web::resource("/login").route(web::post().to(user::login)))//登陆
                 .service(web::resource("/sendVerification").route(web::post().to(admin::send_verification_handle::send_verification)))//发送邮箱验证码
+                .service(web::resource("/user/checkUser").route(web::get().to(admin::user::check_user)))//用户唯一校验
                 .service(web::resource("/user/create").route(web::post().to(admin::user::create)))//创建用户
                 .service(
                     web::scope("/admin")

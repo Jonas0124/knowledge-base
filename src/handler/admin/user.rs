@@ -5,8 +5,10 @@ use crate::service::admin::user::{create_service, list_service, reset_password_s
 use actix_web::{web, HttpMessage, HttpRequest, Responder};
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
+use crate::models::req::user_check_req::UserCheckReqDTO;
+use crate::service::admin::user;
 
-#[derive(Serialize, Deserialize, ToSchema)]
+#[derive(Serialize, Deserialize, ToSchema, Default)]
 pub struct UserCreateRequest {
     /// 用户名
     pub username: String,
@@ -122,6 +124,25 @@ pub struct UserListReply {
 )]
 pub async fn list(req: web::Query<UserListRequest>) -> impl Responder {
     let reply = list_service(req.into_inner()).await;
+    match reply {
+        Ok(result) => web_success_data(result),
+        Err(err) => web_fail(&err.to_string())
+    }
+}
+
+#[utoipa::path(
+    get,
+    context_path = "/api/v1",
+    path = "/user/checkUser",
+    params(UserCheckReqDTO),
+    responses(
+        (status = 200, description = "用户唯一校验")
+    ),
+    tag = "超管模块-用户管理",
+    security(("Authorization" = []))
+)]
+pub async fn check_user(req: web::Query<UserCheckReqDTO>) -> impl Responder {
+    let reply = user::check_user_uk(req.into_inner());
     match reply {
         Ok(result) => web_success_data(result),
         Err(err) => web_fail(&err.to_string())
