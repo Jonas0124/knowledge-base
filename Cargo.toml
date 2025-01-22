@@ -30,7 +30,6 @@ base64 = "0.22.1"
 url = "2.5.2"
 form_urlencoded = "1.2.1"
 hmac-sha1 = "0.2.2"
-percent-encoding = "2.3.1"
 rand = "0.8.5"
 redis = {version = "0.28.1"}
 r2d2_redis = "0.14.0"
@@ -38,11 +37,8 @@ once_cell = "1.19.0"
 captcha = "0.0.6"
 image = "0.25.5"
 
-env_logger = "0.11.6"          # 用于日志输出
-log = "0.4.25"                  # 用于日志系统
 tracing = "0.1.41"              # 用于链路跟踪
-tracing-subscriber = {version = "0.3.19", features = ["env-filter"]}   # 用于配置链路跟踪的日志
-tracing-log = "0.2.0"          # 用于将日志集成到 tracing
-log4rs = "1.3.0"
+tracing-subscriber = {version = "0.3.19", features = ["env-filter", "json"]}
+tracing-appender = "0.2.3"# 用于配置链路跟踪的日志
 futures = "0.3.31"
 

@@ -5,6 +5,7 @@ use crate::service::admin::user::{create_service, list_service, reset_password_s
 use actix_web::{web, HttpMessage, HttpRequest, Responder};
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
+use crate::config::log_init::req_log;
 use crate::models::req::user_check_req::UserCheckReqDTO;
 use crate::service::admin::user;
 
@@ -143,11 +144,10 @@ pub async fn list(req: web::Query<UserListRequest>) -> impl Responder {
 )]
 pub async fn check_user(req: web::Query<UserCheckReqDTO>) -> impl Responder {
     let dto = req.into_inner();
-    tracing::info!("校验用户入参:{:#?}", &dto);
+    req_log(&dto);
     let reply = user::check_user_uk(dto);
-    tracing::info!("校验用户返回:");
     match reply {
-        Ok(result) => web_success_data(result),
+        Ok(()) => web_success(),
         Err(err) => web_fail(&err.to_string())
     }
 }

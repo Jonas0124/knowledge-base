@@ -65,13 +65,13 @@ where
 
 
         // Log the trace_id
-        tracing::info!("Processing request: {}", req.path());
+        tracing::info!("Processing request: {},{}", &trace_id, req.path());
         // 调用服务处理请求.instrument(span)
         let fut = self.service.call(req);
 
         Box::pin(async move {
             let response = fut.instrument(span).await?;
-            tracing::info!("trace_id={}:=Processing requestsssss: {}",&trace_id, response.status());
+            tracing::info!("trace_id={}:=Processing respons: {}",&trace_id, response.status());
             Ok(response)
         })
     }

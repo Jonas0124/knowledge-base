@@ -1,17 +1,41 @@
-use tracing_subscriber::FmtSubscriber;
+use serde_json::json;
+use tracing::info;
+use tracing_appender::{non_blocking, rolling};
 use tracing_subscriber::EnvFilter;
+use tracing_subscriber::fmt::format::FmtSpan;
+use tracing_subscriber::fmt::Layer;
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::util::SubscriberInitExt;
+
+pub fn req_log<T>(data: T)
+where T: serde::Serialize
+{
+    info!("统一入参参数打印:{}", json!(data))
+}
+
 pub async fn init_logging() {
-    // 设置日志的过滤器，默认级别是 info
-    let filter = EnvFilter::new("info");
-    let subscriber = FmtSubscriber::builder()
-        .with_env_filter(filter)
-        .finish();
+    // 初始化日志系统 --------------------------------
+    let log_dir = "./logs";
+    std::fs::create_dir_all(log_dir).unwrap();
 
-    // 设置全局日志订阅器
-    tracing::subscriber::set_global_default(subscriber)
-        .expect("setting default subscriber failed");
+    // 控制台输出（必须保留守卫）
+    let (stdout_writer, _guard) = non_blocking(std::io::stdout());
 
-    // 使用 log4rs 加载配置文件
-    log4rs::init_file("log4rs.yml", Default::default())
-        .expect("Failed to initialize log4rs");
+    // 文件输出
+    let file_appender = rolling::daily(log_dir, "app.log");
+
+    // 配置日志订阅器
+    tracing_subscriber::registry()
+        .with(EnvFilter::from_default_env()
+            .add_directive("info".parse().unwrap())
+        )
+        // 文件层
+        .with(
+            Layer::new()
+                .with_writer(file_appender)
+                .with_ansi(false)
+                .json() // 文件用JSON格式
+                .with_span_list(false)
+        )
+        .init();
 }
