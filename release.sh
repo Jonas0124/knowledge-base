@@ -19,7 +19,7 @@ sed -i "0,/^DATABASE_URL=.*/s|^DATABASE_URL=.*|DATABASE_URL=mysql://root:$2@mysq
 sed -i "0,/^MYSQL_ROOT_PASSWORD=.*/s|^MYSQL_ROOT_PASSWORD=.*|MYSQL_ROOT_PASSWORD=$2|" mysql.env
 sed -i "0,/^REDIS_PASSWORD=.*/s|^REDIS_PASSWORD=.*|REDIS_PASSWORD=$2|" mysql.env
 sed -i "0,/^REDIS_URL=.*/s|^REDIS_URL=.*|REDIS_URL=redis://:$2@redis7:6379|" .env
-sed -i "0,/^LOG_PATH=.*/s|^LOG_PATH=.*|LOG_PATH=../../logs|" .env
+sed -i "0,/^LOG_PATH=.*/s|^LOG_PATH=.*|LOG_PATH=../logs|" .env
 old_string="!!redisup"
 new_string=$2
 
