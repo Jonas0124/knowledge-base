@@ -1,3 +1,5 @@
+use std::env;
+use dotenvy::dotenv;
 use serde_json::json;
 use tracing::info;
 use tracing_appender::{non_blocking, rolling};
@@ -14,9 +16,13 @@ where T: serde::Serialize
 }
 
 pub async fn init_logging() {
+    dotenv().ok(); // 加载 .env 文件中的环境变量
+
+    let log_dir = env::var("LOG_PATH")
+        .expect("DATABASE_URL must be set in .env file");
+
     // 初始化日志系统 --------------------------------
-    let log_dir = "./logs";
-    std::fs::create_dir_all(log_dir).unwrap();
+    std::fs::create_dir_all(&log_dir).unwrap();
 
     // 控制台输出（必须保留守卫）
     let (stdout_writer, _guard) = non_blocking(std::io::stdout());
