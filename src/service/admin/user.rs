@@ -17,6 +17,7 @@ use crate::dao::redis_db::get_redis_connection;
 use crate::middleware::user_context::UserContext;
 use crate::models::r#enum::redis_enum::RedisEnum;
 use crate::models::req::user_check_req::UserCheckReqDTO;
+use crate::models::req::user_log_off_req::UserLogOffReqDTO;
 
 pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Result<(), Box<dyn Error>> {
     // 验证码校验
@@ -72,27 +73,15 @@ pub async fn reset_password_service(req: UserResetPasswordRequest) -> Result<(),
      let Some(user_res) = user_option else {
          return business_err(ErrorKind::NotFound, "用户不存在");
      };
-    let question_ids: Vec<String> = req.user_secret_req.iter().map(|x| x.id.clone()).collect();
-    let questios_option = user_secret.filter(id.eq_any(&question_ids)).load::<UserSecret>(&mut connection).ok();
-    let Some(questions) = questios_option else {
-        return business_err(ErrorKind::Other, "验证失败");
+    // 验证码校验
+    let mut conn = get_redis_connection().await?;
+    let option = conn.get::<&str, String>(&(RedisEnum::UpdateUserEmailSend.to_key().to_string() + &req.email)).ok();
+    let Some(option) = option else {
+        return business_err(ErrorKind::Other, "验证码错误");
     };
-    if questions.len() != 3 {
-        return business_err(ErrorKind::Other, "验证失败");
+    if option != req.verification_content {
+        return business_err(ErrorKind::Other, "验证码错误");
     }
-    let da_secret_map: HashMap<&String, &UserSecret> = questions.iter().map(|question| (&question.id, question)).collect();
-
-    for item in req.user_secret_req.iter() {
-        let option = da_secret_map.get(&item.id);
-        let Some(secret) = option else {
-            return business_err(ErrorKind::Other, "验证失败");
-        };
-        if item.answer != secret.answer {
-            return business_err(ErrorKind::Other, "验证失败");
-        }
-    }
-
-
     //验证成功，修改密码
     let result = diesel::update(user_dsl::user)
         .filter(user_dsl::id.eq(&req.id).and(user_dsl::reversion.eq(&user_res.reversion)))
@@ -104,6 +93,41 @@ pub async fn reset_password_service(req: UserResetPasswordRequest) -> Result<(),
     if num < 1 {
         return business_err(ErrorKind::Other, "业务繁忙，请重试！");
     }
+    Ok(())
+}
+
+pub async fn log_off_service(req: UserLogOffReqDTO) -> Result<(), Box<dyn Error>> {
+    let mut connection = db_connection().get().unwrap();
+    let user_option = user_dsl::user.find(&req.id()).get_result::<User>(&mut connection).ok();
+    let Some(user_res) = user_option else {
+        return business_err(ErrorKind::NotFound, "用户不存在");
+    };
+    // 验证码校验
+    let mut conn = get_redis_connection().await?;
+    let option = conn.get::<&str, String>(&(RedisEnum::LogOffUser.to_key().to_string() + &req.email())).ok();
+    let Some(option) = option else {
+        return business_err(ErrorKind::Other, "验证码错误");
+    };
+    if option.eq(req.verification_content()) {
+        return business_err(ErrorKind::Other, "验证码错误");
+    }
+    //删除账户
+    let result = diesel::update(user_dsl::user)
+        .filter(user_dsl::id.eq(&req.id()).and(user_dsl::reversion.eq(&user_res.reversion)))
+        .set(user_dsl::is_delete.eq(req.id()))
+        .execute(&mut connection).ok();
+    let Some(num) = result else {
+        return business_err(ErrorKind::Other, "业务繁忙，请重试！");
+    };
+    if num < 1 {
+        return business_err(ErrorKind::Other, "业务繁忙，请重试！");
+    }
+    Ok(())
+}
+
+pub async fn log_out_service(req: &str) -> Result<(), Box<dyn Error>> {
+    let mut conn = get_redis_connection().await?;
+    conn.del::<&str, String>(&(RedisEnum::LogInUser.to_key().to_string() + req)).ok();
     Ok(())
 }
 

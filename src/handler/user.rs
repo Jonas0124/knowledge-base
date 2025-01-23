@@ -21,7 +21,7 @@ pub struct UserClaim {
     // 邮箱地址
     pub email: String,
     // 过期时间
-    pub exp: i64,
+    pub exp: usize,
 }
 
 #[utoipa::path(

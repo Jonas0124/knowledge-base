@@ -25,6 +25,7 @@ use crate::middleware::user_context::UserContextMiddleware;
         crate::handler::admin::user::create,
         crate::handler::admin::user::check_user,
         crate::handler::admin::user::update_password,
+        crate::handler::admin::user::log_off,
         crate::handler::admin::user::list,
     ),
     components(schemas(
@@ -36,6 +37,7 @@ use crate::middleware::user_context::UserContextMiddleware;
         crate::handler::admin::user::UserListReply,
         crate::models::req::send_verification::SendVerificationReq,
         crate::models::req::captcha_req::CaptchaReqDTO,
+        crate::models::req::user_log_off_req::UserLogOffReqDTO,
         crate::models::req::user_check_req::UserCheckReqDTO,
         crate::models::res::captcha_res::CaptchaResDTO,
     )),
@@ -73,6 +75,8 @@ fn config_app(cfg: &mut web::ServiceConfig) {
                     web::scope("/admin")
                         .wrap(AuthMiddleware)
                         .service(web::resource("/user/updatePassword").route(web::post().to(admin::user::update_password)))
+                        .service(web::resource("/user/logOff").route(web::post().to(admin::user::log_off)))
+                        .service(web::resource("/user/logOut/{id}").route(web::post().to(admin::user::log_out)))
                         .service(web::resource("/user/list").route(web::get().to(admin::user::list)))
                 )
         )

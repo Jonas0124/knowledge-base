@@ -32,16 +32,16 @@ pub async fn send_verification_email(req: SendVerificationReq, context: &UserCon
     let mut rng = rand::thread_rng();  // 获取随机数生成器
     let random_number = rng.gen_range(100_000..1_000_000).to_string();  // 生成 6 位数字
     let email_vo = EmailVo {
-        subject: "创建用户验证码",
+        subject: "woja验证码",
         body_type: 1,
         to_address: &req.email,
         // body: &"<a href=\"https://www.baidu.com\">点击这里跳转</a>",
-        body: &("<h1>创建用户验证码如下,过期时间10分钟:</h1>\n<h2>".to_string() + &random_number + "</h2>"),
+        body: &("<h1>【woja】用户验证码如下,过期时间10分钟,如非本人操作，请忽略。</h1>\n<h2>".to_string() + &random_number + "</h2>"),
         msg_type: req.msg_type,
     };
     send_email(&email_vo, context).await?;
     let mut connection = get_redis_connection().await.unwrap();
-    connection.set_ex::<&str, &str, ()>(&(RedisEnum::CreateUserEmailSend.to_key().to_string() + &req.email), &random_number, 600)?;
+    connection.set_ex::<&str, &str, ()>(&(RedisEnum::get_key(&req.msg_type).to_key().to_string() + &req.email), &random_number, 600)?;
     Ok(())
 }
 

@@ -26,3 +26,8 @@ pub async fn get_redis_connection() -> redis::RedisResult<r2d2::PooledConnection
     let connection = REDIS_POOL.get().expect("Failed to get Redis connection from pool");
     Ok(connection)
 }
+
+pub fn get_redis() -> redis::RedisResult<r2d2::PooledConnection<RedisConnectionManager>> {
+    let connection = REDIS_POOL.get().expect("Failed to get Redis connection from pool");
+    Ok(connection)
+}
