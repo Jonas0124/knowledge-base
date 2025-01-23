@@ -11,6 +11,7 @@ services:
       - "8080:8080"
     volumes:
       - /usr/local/rust/knowledge-base:/usr/knowledge-base
+      - /usr/local/rust/logs:/usr/knowledge-base/logs
 #    command:
 #      - "diesel migration run"
     networks:
