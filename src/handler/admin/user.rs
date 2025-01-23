@@ -112,8 +112,15 @@ pub async fn update_password(req: web::Json<UserResetPasswordRequest>) -> impl R
     tag = "超管模块-用户管理",
     security(("Authorization" = []))
 )]
-pub async fn log_off(req: web::Json<UserLogOffReqDTO>) -> impl Responder {
-    let reply = log_off_service(req.into_inner()).await;
+pub async fn log_off(req: web::Json<UserLogOffReqDTO>, r: HttpRequest) -> impl Responder {
+    let token = r.headers().get("Authorization");
+    let Some(token) = token else {
+        return web_fail("token失效");
+    };
+    let Some(token) = token.to_str().ok() else {
+        return web_fail("token失效");
+    };
+    let reply = log_off_service(req.into_inner(), token).await;
     match reply {
         Ok(_) => web_success(),
         Err(err) => web_fail(&err.to_string())

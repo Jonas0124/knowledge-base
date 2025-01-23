@@ -96,7 +96,7 @@ pub async fn reset_password_service(req: UserResetPasswordRequest) -> Result<(),
     Ok(())
 }
 
-pub async fn log_off_service(req: UserLogOffReqDTO) -> Result<(), Box<dyn Error>> {
+pub async fn log_off_service(req: UserLogOffReqDTO, token: &str) -> Result<(), Box<dyn Error>> {
     let mut connection = db_connection().get().unwrap();
     let user_option = user_dsl::user.find(&req.id()).get_result::<User>(&mut connection).ok();
     let Some(user_res) = user_option else {
@@ -122,7 +122,7 @@ pub async fn log_off_service(req: UserLogOffReqDTO) -> Result<(), Box<dyn Error>
     if num < 1 {
         return business_err(ErrorKind::Other, "业务繁忙，请重试！");
     }
-    Ok(())
+    log_out_service(token)
 }
 
 pub async fn log_out_service(req: &str) -> Result<(), Box<dyn Error>> {
