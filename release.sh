@@ -39,4 +39,5 @@ else
   echo "4开始部署$1！"
   docker compose up -d --build
 fi
+docker images --filter "dangling=true" -q | xargs -r docker rmi
 echo "操作完成！"
