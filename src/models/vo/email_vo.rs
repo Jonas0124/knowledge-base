@@ -14,4 +14,7 @@ pub struct EmailVo<'a> {
 
     /// 收件人，逗号分割
     pub to_address: &'a str,
+
+    /// 消息类型
+    pub msg_type: i32,
 }

@@ -8,9 +8,10 @@ services:
     image: rust:1.83.0
     restart: unless-stopped
     ports:
-      - "80:8080"
+      - "8080:8080"
     volumes:
       - /usr/local/rust/knowledge-base:/usr/knowledge-base
+      - /usr/local/rust/logs:/usr/knowledge-base/logs
 #    command:
 #      - "diesel migration run"
     networks:
@@ -55,6 +56,23 @@ services:
       - portainer_data:/data
     networks:
       - knowledge
+  nginx:
+    image: nginx:latest  # 使用官方 nginx 镜像
+    container_name: nginx  # 设置容器名称
+    ports:
+      - "80:80"  # 映射端口 80
+      - "443:443"  # 映射端口 443
+    volumes:
+      - /usr/local/nginx/html:/usr/share/nginx/html  # 挂载 HTML 文件目录
+      - /usr/local/nginx/conf/nginx.conf:/etc/nginx/nginx.conf  # 挂载 Nginx 配置文件
+      - /usr/local/nginx/conf.d:/etc/nginx/conf.d  # 挂载配置目录
+      - /usr/local/nginx/logs:/var/log/nginx  # 挂载日志目录
+      - /usr/local/nginx/ssl:/etc/nginx/ssl  # 挂载 SSL 证书目录
+    privileged: true  # 启用特权模式
+    restart: always  # 容器崩溃后自动重启
+    networks:
+      - knowledge  # 指定使用的 Docker 网络
+
 volumes:
   mysqldata:
   mysqlconf:

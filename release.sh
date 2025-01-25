@@ -11,14 +11,15 @@ cd /usr/local/rust/
 #rm -rf knowledge-base
 #git clone git@github.com:Jonas0124/knowledge-base.git
 cd knowledge-base
-
+chmod +x knowledge-base
 # 修改环境变量，并且保存（.env）
 sed -i "0,/^DATABASE_URL=.*/s|^DATABASE_URL=.*|DATABASE_URL=mysql://root:$2@mysql8:3306/knowledge|" .env
 
 
 sed -i "0,/^MYSQL_ROOT_PASSWORD=.*/s|^MYSQL_ROOT_PASSWORD=.*|MYSQL_ROOT_PASSWORD=$2|" mysql.env
 sed -i "0,/^REDIS_PASSWORD=.*/s|^REDIS_PASSWORD=.*|REDIS_PASSWORD=$2|" mysql.env
-sed -i "0,/^REDIS_URL=.*/s|^REDIS_URL=.*|REDIS_URL=redis://:$2@redis7:6379|" mysql.env
+sed -i "0,/^REDIS_URL=.*/s|^REDIS_URL=.*|REDIS_URL=redis://:$2@redis7:6379|" .env
+#sed -i "0,/^LOG_PATH=.*/s|^LOG_PATH=.*|LOG_PATH=../logs|" .env
 old_string="!!redisup"
 new_string=$2
 
@@ -38,4 +39,5 @@ else
   echo "4开始部署$1！"
   docker compose up -d --build
 fi
+docker images --filter "dangling=true" -q | xargs -r docker rmi
 echo "操作完成！"

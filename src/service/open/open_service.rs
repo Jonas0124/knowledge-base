@@ -1,20 +1,17 @@
+use crate::middleware::user_context::UserContext;
+use crate::models::res::email_res::EmailRes;
 use crate::models::vo::email_vo::EmailVo;
-use base64::encode;
+use crate::service::admin::msg_send_log_service::save_send_log;
+use base64::Engine;
 use chrono::Utc;
-use hmac_sha1::hmac_sha1;
-use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
+use dotenvy::dotenv;
 use reqwest::Client;
 use std::collections::HashMap;
 use std::env;
 use std::error::Error;
-use std::fmt::Debug;
-use dotenvy::dotenv;
+use base64::engine::general_purpose::STANDARD;
 use url::{form_urlencoded, Url};
-use uuid::{uuid, Uuid};
-use crate::middleware::user_context::UserContext;
-use crate::models::entity::send_msg_log::MsgSendLog;
-use crate::models::res::email_res::EmailRes;
-use crate::service::admin::msg_send_log_service::save_send_log;
+use uuid::Uuid;
 
 /// 邮箱推送
 
@@ -75,7 +72,7 @@ pub async fn send_email(email_vo: &EmailVo<'_>, context: &UserContext) -> Result
 
         // 计算签名
         let sha1 = hmac_sha1::hmac_sha1(format!("{}&", app_key).as_bytes(), string_to_sign.as_bytes());
-        let signature = encode(sha1);
+        let signature = STANDARD.encode(sha1);
 
         // 将签名添加到参数中
         params1.append_pair("Signature", &signature);
@@ -99,8 +96,8 @@ pub async fn send_email(email_vo: &EmailVo<'_>, context: &UserContext) -> Result
         success = 0;
     }
     println!("{}", success);
-    let em = email_vo.to_address.clone();
-    save_send_log(context, 0, em.to_string(), success, url.to_string(), Some(response))?;
+    let em = email_vo.to_address;
+    save_send_log(context, email_vo.msg_type, em.to_string(), success, url.to_string(), Some(response))?;
     Ok(())
 }
 

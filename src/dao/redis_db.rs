@@ -1,5 +1,6 @@
 use r2d2_redis::{r2d2, RedisConnectionManager};
 use std::env;
+use dotenvy::dotenv;
 use once_cell::sync::Lazy;
 use r2d2_redis::r2d2::Pool;
 
@@ -7,6 +8,7 @@ pub type RedisPool = Pool<RedisConnectionManager>;
 
 // 静态全局 Redis 连接池
 pub static REDIS_POOL: Lazy<RedisPool> = Lazy::new(|| {
+    dotenv().ok();
     // 获取 Redis 连接 URL 或者从环境变量获取
     let redis_url = env::var("REDIS_URL").expect("REDIS_URL must be set");
     let manager = RedisConnectionManager::new(redis_url).expect("Invalid Redis URL");
@@ -21,6 +23,11 @@ pub static REDIS_POOL: Lazy<RedisPool> = Lazy::new(|| {
 
 // 获取 Redis 连接
 pub async fn get_redis_connection() -> redis::RedisResult<r2d2::PooledConnection<RedisConnectionManager>> {
+    let connection = REDIS_POOL.get().expect("Failed to get Redis connection from pool");
+    Ok(connection)
+}
+
+pub fn get_redis() -> redis::RedisResult<r2d2::PooledConnection<RedisConnectionManager>> {
     let connection = REDIS_POOL.get().expect("Failed to get Redis connection from pool");
     Ok(connection)
 }

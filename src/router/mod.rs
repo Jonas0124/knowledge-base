@@ -6,6 +6,7 @@ use utoipa_swagger_ui::SwaggerUi;
 use crate::handler::{admin, user};
 use crate::handler::ping::ping;
 use crate::middleware::auth::AuthMiddleware;
+use crate::middleware::log_middlware::LogMiddleware;
 use crate::middleware::user_context::UserContextMiddleware;
 
 #[derive(OpenApi)]
@@ -19,8 +20,13 @@ use crate::middleware::user_context::UserContextMiddleware;
         crate::handler::ping::ping,
         crate::handler::user::login,
         crate::handler::admin::send_verification_handle::send_verification,
+        crate::handler::admin::send_verification_handle::captcha,
+        crate::handler::admin::send_verification_handle::check_captcha,
         crate::handler::admin::user::create,
+        crate::handler::admin::user::check_user,
         crate::handler::admin::user::update_password,
+        crate::handler::admin::user::log_off,
+        crate::handler::admin::user::log_out,
         crate::handler::admin::user::list,
     ),
     components(schemas(
@@ -31,6 +37,10 @@ use crate::middleware::user_context::UserContextMiddleware;
         crate::handler::admin::user::UserListRequest,
         crate::handler::admin::user::UserListReply,
         crate::models::req::send_verification::SendVerificationReq,
+        crate::models::req::captcha_req::CaptchaReqDTO,
+        crate::models::req::user_log_off_req::UserLogOffReqDTO,
+        crate::models::req::user_check_req::UserCheckReqDTO,
+        crate::models::res::captcha_res::CaptchaResDTO,
     )),
     modifiers(&SecurityAddon)
 )]
@@ -54,14 +64,20 @@ fn config_app(cfg: &mut web::ServiceConfig) {
         .service(web::resource("/ping").route(web::get().to(ping)))
         .service(
             web::scope("/api/v1")
+                .wrap(LogMiddleware)
                 .wrap(UserContextMiddleware)
-                .service(web::resource("/login").route(web::post().to(user::login)))
-                .service(web::resource("/sendVerification").route(web::post().to(admin::send_verification_handle::send_verification)))
+                .service(web::resource("/captcha").route(web::get().to(admin::send_verification_handle::captcha)))//获取图形验证码
+                .service(web::resource("/checkCaptcha").route(web::post().to(admin::send_verification_handle::check_captcha)))//校验图形验证码
+                .service(web::resource("/login").route(web::post().to(user::login)))//登陆
+                .service(web::resource("/sendVerification").route(web::post().to(admin::send_verification_handle::send_verification)))//发送邮箱验证码
+                .service(web::resource("/user/checkUser").route(web::get().to(admin::user::check_user)))//用户唯一校验
+                .service(web::resource("/user/create").route(web::post().to(admin::user::create)))//创建用户
                 .service(
                     web::scope("/admin")
                         .wrap(AuthMiddleware)
-                        .service(web::resource("/user/create").route(web::post().to(admin::user::create)))
                         .service(web::resource("/user/updatePassword").route(web::post().to(admin::user::update_password)))
+                        .service(web::resource("/user/logOff").route(web::post().to(admin::user::log_off)))
+                        .service(web::resource("/user/logOut/{id}").route(web::post().to(admin::user::log_out)))
                         .service(web::resource("/user/list").route(web::get().to(admin::user::list)))
                 )
         )

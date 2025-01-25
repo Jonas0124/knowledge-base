@@ -6,9 +6,12 @@ use actix_web::{
 };
 use futures_util::future::LocalBoxFuture;
 use jsonwebtoken::{decode, DecodingKey};
+use r2d2_redis::redis::Commands;
 use serde_json::json;
+use crate::dao::redis_db::{get_redis, get_redis_connection};
 use crate::define::JWT_SECRET;
 use crate::handler::user::UserClaim;
+use crate::models::r#enum::redis_enum::RedisEnum;
 
 // There are two steps in middleware processing.
 // 1. Middleware initialization, middleware factory gets called with
@@ -60,6 +63,13 @@ where
             });
         }
         let token = token.unwrap().to_str().unwrap();
+        let mut conn = get_redis().unwrap();
+        let res = conn.get::<&str, String>(&(RedisEnum::LogInUser.to_key().to_string() + token)).ok();
+        if let None = res {
+            return Box::pin(async move {
+                Err(actix_web::error::ErrorUnauthorized(json!({"code": 401, "msg": "token is invalid"})))
+            });
+        }
         let result = decode::<UserClaim>(token, &DecodingKey::from_secret(JWT_SECRET.as_ref()), &jsonwebtoken::Validation::default());
         if result.is_err() {
             return Box::pin(async move {

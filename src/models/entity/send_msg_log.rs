@@ -1,5 +1,5 @@
-use chrono::{DateTime, NaiveDateTime, Utc};
-use diesel::{AsChangeset, Insertable, Queryable};
+use chrono::NaiveDateTime;
+use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
