@@ -1,15 +1,21 @@
 use crate::service::user::login_service;
 use actix_web::{web, HttpResponse, Responder};
+use getset::{Getters, Setters};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use utoipa::ToSchema;
+use validator_derive::Validate;
 
-#[derive(Serialize, Deserialize, ToSchema)]
+#[derive(Serialize, Deserialize, ToSchema, Validate, Getters, Setters)]
 pub struct UserLoginRequest {
     /// 用户名或油箱
-    pub username: String,
+    #[validate(length(min = 1, message = "用户名不能为空"))]
+    #[getset(get = "pub", set = "pub")]
+    username: String,
     /// 密码
-    pub password: String,
+    #[validate(length(min = 1, message = "密码不能为空"))]
+    #[getset(get = "pub", set = "pub")]
+    password: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -21,7 +27,7 @@ pub struct UserClaim {
     // 邮箱地址
     pub email: String,
     // 过期时间
-    pub exp: usize,
+    pub exp: i64,
 }
 
 #[utoipa::path(
@@ -34,7 +40,7 @@ pub struct UserClaim {
     ),
     tag = "用户模块"
 )]
-pub async fn login(req: web::Json<UserLoginRequest>) -> impl Responder {
+pub async fn login(req: actix_web_validator::Json<UserLoginRequest>) -> impl Responder {
     let reply = login_service(req.into_inner()).await;
     match reply {
         Ok(token) => HttpResponse::Ok().json(json!({"code": 200, "data": {"token": token}})),

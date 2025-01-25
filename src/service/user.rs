@@ -12,18 +12,19 @@ use jsonwebtoken::{encode, EncodingKey, Header};
 use r2d2_redis::redis::Commands;
 use std::error::Error;
 use std::io::ErrorKind;
+use chrono::{Duration, Utc};
 
 pub async fn login_service(req: UserLoginRequest) -> Result<String, Box<dyn Error>> {
     let mut connection = db_connection().get().unwrap();
 
     // 2. 获取 user 信息
-    let res = user.filter(email.eq(&req.username).or(username.eq(&req.username)))
+    let res = user.filter(email.eq(&req.username()).or(username.eq(&req.username())))
         .first::<User>(&mut connection)
         .ok();
     let Some(res_user) = res else {
         return business_err(ErrorKind::NotFound, "用户不存在");
     };
-    if req.password != res_user.password {
+    if req.password().ne(&res_user.password) {
         return business_err(ErrorKind::NotFound, "密码错误");
     }
 
@@ -32,12 +33,12 @@ pub async fn login_service(req: UserLoginRequest) -> Result<String, Box<dyn Erro
         id: res_user.id,
         username: res_user.username,
         email: res_user.email,
-        exp: 60 * 60,
+        exp: Utc::now().timestamp_millis() + Duration::hours(1).num_milliseconds(),
     };
     let token = encode(
         &Header::default(), &claim, &EncodingKey::from_secret(JWT_SECRET.as_ref())
     )?;
     let mut conn = get_redis_connection().await?;
-    conn.set_ex(RedisEnum::LogInUser.to_key().to_string() + &token, claim.email, claim.exp)?;
+    conn.set_ex(RedisEnum::LogInUser.to_key().to_string() + &token, claim.email, 60 * 60)?;
     Ok(token)
 }

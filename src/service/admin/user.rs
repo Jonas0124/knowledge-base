@@ -108,7 +108,7 @@ pub async fn log_off_service(req: UserLogOffReqDTO, token: &str) -> Result<(), B
     let Some(option) = option else {
         return business_err(ErrorKind::Other, "验证码错误");
     };
-    if option.eq(req.verification_content()) {
+    if option.ne(req.verification_content()) {
         return business_err(ErrorKind::Other, "验证码错误");
     }
     //删除账户
@@ -122,7 +122,7 @@ pub async fn log_off_service(req: UserLogOffReqDTO, token: &str) -> Result<(), B
     if num < 1 {
         return business_err(ErrorKind::Other, "业务繁忙，请重试！");
     }
-    log_out_service(token)
+    log_out_service(token).await
 }
 
 pub async fn log_out_service(req: &str) -> Result<(), Box<dyn Error>> {

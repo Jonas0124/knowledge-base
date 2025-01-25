@@ -64,7 +64,7 @@ where
         }
         let token = token.unwrap().to_str().unwrap();
         let mut conn = get_redis().unwrap();
-        let res = conn.get::<&str, String>(RedisEnum::LogInUser.to_key()).ok();
+        let res = conn.get::<&str, String>(&(RedisEnum::LogInUser.to_key().to_string() + token)).ok();
         if let None = res {
             return Box::pin(async move {
                 Err(actix_web::error::ErrorUnauthorized(json!({"code": 401, "msg": "token is invalid"})))

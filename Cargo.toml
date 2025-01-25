@@ -41,4 +41,6 @@ tracing = "0.1.41"              # 用于链路跟踪
 tracing-subscriber = {version = "0.3.19", features = ["env-filter", "json"]}
 tracing-appender = "0.2.3"# 用于配置链路跟踪的日志
 futures = "0.3.31"
-
+actix-web-validator = "5.0.0"
+validator = { version = "0.16"}
+validator_derive = "0.16.0"

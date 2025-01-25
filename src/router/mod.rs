@@ -26,6 +26,7 @@ use crate::middleware::user_context::UserContextMiddleware;
         crate::handler::admin::user::check_user,
         crate::handler::admin::user::update_password,
         crate::handler::admin::user::log_off,
+        crate::handler::admin::user::log_out,
         crate::handler::admin::user::list,
     ),
     components(schemas(
