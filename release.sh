@@ -11,6 +11,7 @@ cd /usr/local/rust/
 #rm -rf knowledge-base
 #git clone git@github.com:Jonas0124/knowledge-base.git
 cd knowledge-base
+cp -r /usr/local/rust/dieselmk/* /usr/local/rust/knowledge-base/
 chmod +x knowledge-base
 # 修改环境变量，并且保存（.env）
 sed -i "0,/^DATABASE_URL=.*/s|^DATABASE_URL=.*|DATABASE_URL=mysql://root:$2@mysql8:3306/knowledge|" .env
