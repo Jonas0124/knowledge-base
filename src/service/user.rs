@@ -13,6 +13,7 @@ use r2d2_redis::redis::Commands;
 use std::error::Error;
 use std::io::ErrorKind;
 use chrono::{Duration, Utc};
+use crate::util::argon2util::verify_password;
 
 pub async fn login_service(req: UserLoginRequest) -> Result<String, Box<dyn Error>> {
     let mut connection = db_connection().get().unwrap();
@@ -24,7 +25,10 @@ pub async fn login_service(req: UserLoginRequest) -> Result<String, Box<dyn Erro
     let Some(res_user) = res else {
         return business_err(ErrorKind::NotFound, "用户不存在");
     };
-    if req.password().ne(&res_user.password) {
+    if res_user.is_delete.ne("0") {
+        return business_err(ErrorKind::NotFound, "用户不存在");
+    }
+    if !verify_password(req.password(), &res_user.password) {
         return business_err(ErrorKind::NotFound, "密码错误");
     }
 

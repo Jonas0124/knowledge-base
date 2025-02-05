@@ -18,6 +18,7 @@ use crate::middleware::user_context::UserContext;
 use crate::models::r#enum::redis_enum::RedisEnum;
 use crate::models::req::user_check_req::UserCheckReqDTO;
 use crate::models::req::user_log_off_req::UserLogOffReqDTO;
+use crate::util::argon2util::generate;
 
 pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Result<(), Box<dyn Error>> {
     // 验证码校验
@@ -38,7 +39,7 @@ pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Re
     let user_db = User {
         id: user_id.clone(),
         username: req.username,
-        password: req.password,
+        password: generate(&req.password),
         email: req.email,
         is_delete: String::from("0"),
         reversion: 0,
@@ -57,7 +58,12 @@ pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Re
 
 /// 用户唯一校验
 pub fn check_user(req: &UserCreateRequest, conn: &mut PooledConnection<ConnectionManager<MysqlConnection>>) -> Result<(), Box<dyn Error>> {
-    let count: i64 = user_dsl::user.filter(user_dsl::username.eq(&req.username).or(user_dsl::email.eq(&req.email)))
+    let count: i64 = user_dsl::user.filter(
+        user_dsl::username
+            .eq(&req.username)
+            .and(user_dsl::is_delete.eq("0"))
+            .or(user_dsl::email.eq(&req.email))
+    )
         .count().get_result(conn)?;
 
     if count > 0 {
@@ -73,6 +79,9 @@ pub async fn reset_password_service(req: UserResetPasswordRequest) -> Result<(),
      let Some(user_res) = user_option else {
          return business_err(ErrorKind::NotFound, "用户不存在");
      };
+    if "0".ne(&user_res.is_delete){
+        return business_err(ErrorKind::NotFound, "用户不存在");
+    }
     // 验证码校验
     let mut conn = get_redis_connection().await?;
     let option = conn.get::<&str, String>(&(RedisEnum::UpdateUserEmailSend.to_key().to_string() + &req.email)).ok();
@@ -85,7 +94,7 @@ pub async fn reset_password_service(req: UserResetPasswordRequest) -> Result<(),
     //验证成功，修改密码
     let result = diesel::update(user_dsl::user)
         .filter(user_dsl::id.eq(&req.id).and(user_dsl::reversion.eq(&user_res.reversion)))
-        .set(user_dsl::password.eq(req.password))
+        .set(user_dsl::password.eq(generate(&req.password)))
         .execute(&mut connection).ok();
     let Some(num) = result else {
         return business_err(ErrorKind::Other, "业务繁忙，请重试！");
