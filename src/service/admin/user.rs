@@ -61,7 +61,7 @@ pub fn check_user(req: &UserCreateRequest, conn: &mut PooledConnection<Connectio
     let count: i64 = user_dsl::user.filter(
         user_dsl::username
             .eq(&req.username)
-            .and(crate::schema::user::dsl::is_delete.eq("0"))
+            .and(user_dsl::is_delete.eq("0"))
             .or(user_dsl::email.eq(&req.email))
     )
         .count().get_result(conn)?;
