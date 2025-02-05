@@ -18,6 +18,7 @@ use crate::middleware::user_context::UserContext;
 use crate::models::r#enum::redis_enum::RedisEnum;
 use crate::models::req::user_check_req::UserCheckReqDTO;
 use crate::models::req::user_log_off_req::UserLogOffReqDTO;
+use crate::util::argon2util::generate;
 
 pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Result<(), Box<dyn Error>> {
     // 验证码校验
@@ -38,7 +39,7 @@ pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Re
     let user_db = User {
         id: user_id.clone(),
         username: req.username,
-        password: req.password,
+        password: generate(&req.password),
         email: req.email,
         is_delete: String::from("0"),
         reversion: 0,
@@ -85,7 +86,7 @@ pub async fn reset_password_service(req: UserResetPasswordRequest) -> Result<(),
     //验证成功，修改密码
     let result = diesel::update(user_dsl::user)
         .filter(user_dsl::id.eq(&req.id).and(user_dsl::reversion.eq(&user_res.reversion)))
-        .set(user_dsl::password.eq(req.password))
+        .set(user_dsl::password.eq(generate(&req.password)))
         .execute(&mut connection).ok();
     let Some(num) = result else {
         return business_err(ErrorKind::Other, "业务繁忙，请重试！");
