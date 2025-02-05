@@ -25,6 +25,9 @@ pub async fn login_service(req: UserLoginRequest) -> Result<String, Box<dyn Erro
     let Some(res_user) = res else {
         return business_err(ErrorKind::NotFound, "用户不存在");
     };
+    if res_user.is_delete.ne("0") {
+        return business_err(ErrorKind::NotFound, "用户不存在");
+    }
     if !verify_password(req.password(), &res_user.password) {
         return business_err(ErrorKind::NotFound, "密码错误");
     }

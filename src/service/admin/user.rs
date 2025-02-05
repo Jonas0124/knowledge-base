@@ -58,7 +58,12 @@ pub async fn create_service(req: UserCreateRequest, context: &UserContext) -> Re
 
 /// 用户唯一校验
 pub fn check_user(req: &UserCreateRequest, conn: &mut PooledConnection<ConnectionManager<MysqlConnection>>) -> Result<(), Box<dyn Error>> {
-    let count: i64 = user_dsl::user.filter(user_dsl::username.eq(&req.username).or(user_dsl::email.eq(&req.email)))
+    let count: i64 = user_dsl::user.filter(
+        user_dsl::username
+            .eq(&req.username)
+            .and(crate::schema::user::dsl::is_delete.eq("0"))
+            .or(user_dsl::email.eq(&req.email))
+    )
         .count().get_result(conn)?;
 
     if count > 0 {
@@ -74,6 +79,9 @@ pub async fn reset_password_service(req: UserResetPasswordRequest) -> Result<(),
      let Some(user_res) = user_option else {
          return business_err(ErrorKind::NotFound, "用户不存在");
      };
+    if "0".ne(&user_res.is_delete){
+        return business_err(ErrorKind::NotFound, "用户不存在");
+    }
     // 验证码校验
     let mut conn = get_redis_connection().await?;
     let option = conn.get::<&str, String>(&(RedisEnum::UpdateUserEmailSend.to_key().to_string() + &req.email)).ok();
