@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_web::{App, HttpServer};
 use actix_web::web;
 use utoipa::{Modify, OpenApi};
@@ -73,11 +74,11 @@ fn config_app(cfg: &mut web::ServiceConfig) {
                 .service(web::resource("/user/checkUser").route(web::get().to(admin::user::check_user)))//用户唯一校验
                 .service(web::resource("/user/create").route(web::post().to(admin::user::create)))//创建用户
                 .service(
-                    web::scope("/admin")
+                    web::scope("admin")
                         .wrap(AuthMiddleware)
                         .service(web::resource("/user/updatePassword").route(web::post().to(admin::user::update_password)))
                         .service(web::resource("/user/logOff").route(web::post().to(admin::user::log_off)))
-                        .service(web::resource("/user/logOut/{id}").route(web::post().to(admin::user::log_out)))
+                        .service(web::resource("/user/logOut/{id}").route(web::get().to(admin::user::log_out)))
                         .service(web::resource("/user/list").route(web::get().to(admin::user::list)))
                 )
         )
@@ -88,8 +89,20 @@ fn config_app(cfg: &mut web::ServiceConfig) {
 }
 
 pub async fn run_server() ->std::io::Result<()> {
+
     HttpServer::new(move || {
-        App::new().configure(config_app)
+        let cors = Cors::default()
+            .allow_any_origin() // 允许所有来源
+            .allowed_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+            .allowed_headers(vec![
+                http::header::AUTHORIZATION,
+                http::header::ACCEPT,
+                http::header::CONTENT_TYPE,
+
+            ])
+            .supports_credentials()
+            .max_age(3600);
+        App::new().wrap(cors).configure(config_app)
     })
     .bind(("0.0.0.0", 8080))?
     .run()
