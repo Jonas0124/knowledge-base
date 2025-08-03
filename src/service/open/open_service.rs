@@ -1,7 +1,7 @@
 use crate::middleware::user_context::UserContext;
 use crate::models::res::email_res::EmailRes;
 use crate::models::vo::email_vo::EmailVo;
-use crate::service::admin::msg_send_log_service::save_send_log;
+use crate::service::admin::msg_send_log_service::{check_count, save_send_log};
 use base64::Engine;
 use chrono::Utc;
 use dotenvy::dotenv;
@@ -20,7 +20,7 @@ use uuid::Uuid;
 
 pub async fn send_email(email_vo: &EmailVo<'_>, context: &UserContext) -> Result<(), Box<dyn Error>> {
     dotenv().ok(); // 加载 .env 文件中的环境变量
-
+    check_count()?;
     let app_id = env::var("ACCESS_KEY_ID")
         .expect("ACCESS_KEY_ID must be set in .env file");
     let app_key = env::var("ACCESS_KEY_SECRET")
