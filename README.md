@@ -36,7 +36,9 @@
 
 
   发版步骤:
-  1.将二进制包和代码推送到生产环境
-2.git拉代码
-3.执行命令 bash ./release.sh 部署类型 密码
+  1.代码推送到生产环境(复制三个环境文件)，
+  docker run --rm -v "C:\Users\weipe\RustroverProjects\knowledge-base:/app" -w /app rust:1.83 cargo build --release
+  ，上传二进制包
+
+2.执行命令 bash ./release.sh 部署类型 密码
 
